@@ -1,4 +1,4 @@
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="120dp">
@@ -28,12 +28,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ellipsize="end"
-        android:maxLines="1"
-        android:text="@string/story_item_short_title"
+		android:text="@string/story_item_short_title"
         android:layout_centerVertical="true"
         android:gravity="center_vertical"
-        android:lines="1"
-        android:layout_marginRight="60dp" />
+		android:layout_marginRight="60dp"
+		android:maxLines="2" />
 
     </RelativeLayout>
 
@@ -74,4 +73,4 @@
 
 	</info.guardianproject.zt.views.RoundRelativeLayout>
 
-</merge>
+</RelativeLayout>
