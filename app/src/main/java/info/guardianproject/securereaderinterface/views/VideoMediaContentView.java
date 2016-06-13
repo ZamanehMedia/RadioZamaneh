@@ -16,6 +16,7 @@ import android.widget.FrameLayout;
 import android.widget.MediaController;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
 import android.widget.VideoView;
 
 import info.guardianproject.securereaderinterface.models.OnMediaOrientationListener;
@@ -23,16 +24,19 @@ import info.guardianproject.securereaderinterface.R;
 
 public class VideoMediaContentView extends FrameLayout implements OnErrorListener, OnPreparedListener, OnCompletionListener, OnSeekBarChangeListener
 {
-	private VideoView mVideoView;
+	protected VideoView mVideoView;
 	private MediaController mMediaController;
 	private MediaPlayer mMP;
 	private View mControllerView;
 	private View mViewLoading;
 	private View mBtnPlay;
 	private View mBtnPause;
+	private TextView mMediaStatusView;
 	private SeekBar mSeekbar;
 	private boolean mIsTrackingThumb;
 	private OnMediaOrientationListener mOrientationListener;
+	private boolean mAlwaysShowController;
+	private boolean mStartAutomatically;
 
 	public VideoMediaContentView(Context context, AttributeSet attrs, int defStyle)
 	{
@@ -52,22 +56,24 @@ public class VideoMediaContentView extends FrameLayout implements OnErrorListene
 		initView(context);
 	}
 
+	protected int getMediaViewId() {
+		return R.layout.video_view;
+	}
+
 	private void initView(Context context)
 	{
-		View.inflate(context, R.layout.video_view, this);
+		mStartAutomatically = true;
+		View.inflate(context, getMediaViewId(), this);
 
 		mVideoView = (VideoView) findViewById(R.id.content);
 		mViewLoading = findViewById(R.id.frameLoading);
 
-		mControllerView = LayoutInflater.from(getContext()).inflate(R.layout.video_view_controller, this, false);
+		mControllerView = createMediaController();
 
 		if (!isInEditMode())
 		{
 			mViewLoading.setVisibility(View.INVISIBLE);
-
-			mMediaController = new InternalMediaController(getContext());
-			mMediaController.setAnchorView(mVideoView);
-			mVideoView.setMediaController(mMediaController);
+			setupMediaController(mControllerView);
 
 			mVideoView.setOnErrorListener(this);
 			mVideoView.setOnPreparedListener(this);
@@ -75,40 +81,91 @@ public class VideoMediaContentView extends FrameLayout implements OnErrorListene
 		}
 
 		View btnCollapse = mControllerView.findViewById(R.id.btnCollapse);
-		btnCollapse.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				((Activity) v.getContext()).finish();
-			}
-		});
+		if (btnCollapse != null) {
+			btnCollapse.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					((Activity) v.getContext()).finish();
+				}
+			});
+		}
 
-		mBtnPlay = mControllerView.findViewById(R.id.btnPlay);
-		mBtnPlay.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				mVideoView.start();
-				mBtnPlay.setVisibility(View.INVISIBLE);
-				mBtnPause.setVisibility(View.VISIBLE);
-			}
-		});
-
-		mBtnPause = mControllerView.findViewById(R.id.btnPause);
-		mBtnPause.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				mVideoView.pause();
-				mBtnPlay.setVisibility(View.VISIBLE);
-				mBtnPause.setVisibility(View.INVISIBLE);
-			}
-		});
+		setPlayButton(mControllerView.findViewById(R.id.btnPlay));
+		setPauseButton(mControllerView.findViewById(R.id.btnPause));
 
 		mSeekbar = (SeekBar) mControllerView.findViewById(R.id.seekbar);
+		if (mSeekbar != null) {
+			mSeekbar.setMax(0);
+			mSeekbar.setProgress(0);
+			mSeekbar.setSecondaryProgress(0);
+		}
+	}
+
+	protected View createMediaController() {
+		return LayoutInflater.from(getContext()).inflate(R.layout.video_view_controller, this, false);
+	}
+
+	protected void setupMediaController(View controllerView) {
+			mMediaController = new InternalMediaController(getContext());
+			mMediaController.setAnchorView(mVideoView);
+			mVideoView.setMediaController(mMediaController);
+	}
+
+	public void setStartAutomatically(boolean startAutomatically) {
+		this.mStartAutomatically = startAutomatically;
+	}
+
+	public void setAlwaysShowController(boolean alwaysShowController) {
+		this.mAlwaysShowController = alwaysShowController;
+	}
+
+	public void setPlayButton(View view) {
+		if (mBtnPlay != null)
+			mBtnPlay.setOnClickListener(null);
+		mBtnPlay = view;
+		if (mBtnPlay != null) {
+			mBtnPlay.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					play();
+				}
+			});
+			mBtnPlay.setVisibility(mVideoView.isPlaying() ? View.GONE : View.VISIBLE);
+		}
+	}
+
+	public void setPauseButton(View view) {
+		if (mBtnPause != null)
+			mBtnPause.setOnClickListener(null);
+		mBtnPause = view;
+		if (mBtnPause != null) {
+			mBtnPause.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					pause();
+				}
+			});
+			mBtnPause.setVisibility(mVideoView.isPlaying() ? View.VISIBLE : View.GONE);
+		}
+	}
+
+	public void setStatusView(TextView mediaStatusView) {
+		mMediaStatusView = mediaStatusView;
+	}
+
+	public void play() {
+		mVideoView.start();
+		startProgressThread();
+		mBtnPlay.setVisibility(View.INVISIBLE);
+		if (mBtnPause != null)
+			mBtnPause.setVisibility(View.VISIBLE);
+	}
+
+	public void pause() {
+		mVideoView.pause();
+		if (mBtnPlay != null)
+			mBtnPlay.setVisibility(View.VISIBLE);
+		mBtnPause.setVisibility(View.INVISIBLE);
 	}
 
 	public void setContentUri(Uri uri)
@@ -142,6 +199,13 @@ public class VideoMediaContentView extends FrameLayout implements OnErrorListene
 			this.removeAllViews();
 			addView(mControllerView);
 		}
+
+		@Override
+		public void hide() {
+			if (!mAlwaysShowController) {
+				super.hide();
+			}
+		}
 	}
 
 	public MediaPlayer getMediaPlayer()
@@ -160,14 +224,18 @@ public class VideoMediaContentView extends FrameLayout implements OnErrorListene
 
 		mMP = mp;
 		mViewLoading.setVisibility(View.GONE);
-		mp.start();
-		mBtnPlay.setVisibility(View.INVISIBLE);
-		mBtnPause.setVisibility(View.VISIBLE);
-		mMediaController.show();
-
+		if (mMediaController != null)
+			mMediaController.show();
 		mSeekbar.setOnSeekBarChangeListener(this);
-
 		mSeekbar.setMax(mp.getDuration());
+		if (mMediaStatusView != null)
+			mMediaStatusView.setText(getResources().getString(R.string.media_status_minutes, (int) (mp.getDuration() / 60000)));
+		if (mStartAutomatically) {
+			play();
+		}
+	}
+
+	private void startProgressThread() {
 		new Thread(new Runnable()
 		{
 			@Override
@@ -175,15 +243,10 @@ public class VideoMediaContentView extends FrameLayout implements OnErrorListene
 			{
 				try
 				{
-					while (mp != null && mp.getCurrentPosition() < mp.getDuration())
+					while (mMP != null && mMP.isPlaying() && mMP.getCurrentPosition() < mMP.getDuration())
 					{
 						if (!mIsTrackingThumb)
-							mSeekbar.setProgress(mp.getCurrentPosition());
-						Message msg = new Message();
-						int millis = mp.getCurrentPosition();
-
-						msg.obj = millis / 1000;
-
+							mSeekbar.setProgress(mMP.getCurrentPosition());
 						try
 						{
 							Thread.sleep(100);
@@ -200,7 +263,6 @@ public class VideoMediaContentView extends FrameLayout implements OnErrorListene
 				}
 			}
 		}).start();
-
 	}
 
 	@Override
@@ -225,7 +287,7 @@ public class VideoMediaContentView extends FrameLayout implements OnErrorListene
 	@Override
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
 	{
-		if (mIsTrackingThumb)
+		if (mIsTrackingThumb && mMediaController != null)
 			mMediaController.show();
 	}
 

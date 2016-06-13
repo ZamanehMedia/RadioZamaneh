@@ -1,10 +1,14 @@
 package info.guardianproject.securereaderinterface.views;
 
+import info.guardianproject.securereader.HTMLToPlainTextFormatter;
+import info.guardianproject.securereader.Settings;
+import info.guardianproject.securereaderinterface.BuildConfig;
 import info.guardianproject.securereaderinterface.R;
 import info.guardianproject.securereader.Settings.ReaderSwipeDirection;
 import info.guardianproject.securereaderinterface.App;
 import info.guardianproject.securereaderinterface.ItemExpandActivity;
 import info.guardianproject.securereaderinterface.models.FeedFilterType;
+import info.guardianproject.securereaderinterface.ui.HTMLContentFormatter;
 import info.guardianproject.securereaderinterface.ui.MediaViewCollection;
 import info.guardianproject.securereaderinterface.ui.UICallbacks;
 import info.guardianproject.securereaderinterface.ui.MediaViewCollection.OnMediaLoadedListener;
@@ -18,13 +22,17 @@ import java.text.Bidi;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Parcelable;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
@@ -32,10 +40,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.tinymission.rss.Item;
+
+import org.jsoup.nodes.Element;
 
 public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 {
@@ -48,7 +60,9 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 	private float mDefaultTextSize;
 	private float mDefaultAuthorTextSize;
 	private View mView;
-	
+	private View mLayoutControls;
+	private TextView mMediaStatus;
+
 	public StoryItemView(Item item)
 	{
 		mItem = item;
@@ -76,13 +90,15 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 			if (mItem.getMediaContent() != null && mItem.getMediaContent().size()> 0)
 			{
 				mMediaViewCollection  = new MediaViewCollection(parentContainer.getContext(), mItem);
-				mMediaViewCollection.load(false, true);
+				mMediaViewCollection.load(App.getSettings().syncMode() == Settings.SyncMode.LetItFlow, true);
 				mMediaViewCollection.addListener(this);
 			}
 			
 			LayoutInflater inflater = LayoutInflater.from(parentContainer.getContext());
 
 			ViewGroup blueprint = (ViewGroup) inflater.inflate(R.layout.story_item_page_blueprint, parentContainer, false);
+			mLayoutControls = blueprint.findViewById(R.id.layout_controls);
+			mMediaStatus = (TextView)blueprint.findViewById(R.id.media_status);
 			populateViewWithItem(blueprint, mItem);
 			blueprint.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
 			mView = blueprint;
@@ -151,8 +167,13 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 		}
 	}
 
+	@SuppressLint("SetJavaScriptEnabled")
 	private void populateViewWithItem(ViewGroup blueprint, Item story)
 	{
+		// Set Audio Webview
+		//
+		
+
 		// Set title
 		//
 		TextView tv = (TextView) blueprint.findViewById(R.id.tvTitle);
@@ -207,7 +228,15 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 		{
 			mDefaultTextSize = tv.getTextSize();
 			tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, tv.getTextSize() + App.getSettings().getContentFontSizeAdjustment());
-			tv.setText(story.getCleanMainContent());
+			CharSequence content = story.getFormattedMainContent(new HTMLContentFormatter());
+			if (content instanceof Spannable) {
+				Spannable spannableContent = (Spannable) content;
+				for (HTMLContentFormatter.HTMLLinkSpan span : spannableContent.getSpans(0, spannableContent.length(), HTMLContentFormatter.HTMLLinkSpan.class)) {
+					span.setListener(new ReadMoreClickListener(span.getURL()));
+				}
+			}
+			tv.setMovementMethod(LinkMovementMethod.getInstance());
+			tv.setText(content);
 			tv.setPaintFlags(tv.getPaintFlags() | Paint.SUBPIXEL_TEXT_FLAG);
 			if (TextUtils.isEmpty(tv.getText()))
 				tv.setVisibility(View.GONE);
@@ -247,7 +276,7 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 		tv = (TextView) blueprint.findViewById(R.id.tvReadMore);
 		if (tv != null)
 		{
-			if (story.getLink() != null)
+			if (false && story.getLink() != null)
 			{
 				boolean isReadMoreEnabled = !TextUtils.isEmpty(story.getLink()) && App.getInstance().socialReader.isOnline() == SocialReader.ONLINE;
 
@@ -261,7 +290,7 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 				{
 					//tv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_read_orweb, 0, 0, 0);
 					//if (PackageHelper.isOrwebInstalled(blueprint.getContext()))
-						tv.setOnClickListener(new ReadMoreClickListener(story));
+						tv.setOnClickListener(new ReadMoreClickListener(story.getLink()));
 					//else
 					//	tv.setOnClickListener(new PromptOrwebClickListener(blueprint.getContext()));
 				}
@@ -272,6 +301,7 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 				tv.setVisibility(View.GONE);
 			}
 		}
+		updateAudioControls();
 	}
 
 	public boolean usesReverseSwipe()
@@ -284,15 +314,11 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 			{
 				try
 				{
-					Bidi bidi = new Bidi(mItem.getCleanMainContent().toString(), Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT);
+					Bidi bidi = new Bidi(mItem.getCleanMainContent().toString(), Bidi.DIRECTION_DEFAULT_RIGHT_TO_LEFT);
 					if (!bidi.baseIsLeftToRight())
 						bReverse = true;
 				}
 				catch (IllegalArgumentException e)
-				{
-					// Content probably null for some reason.
-				}
-				catch (NullPointerException e)
 				{
 					// Content probably null for some reason.
 				}
@@ -359,15 +385,28 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 			animatedRoot.setStartPositions(getStoredPositions());
 			animatedRoot.requestLayout();
 		}
+		updateAudioControls();
+	}
+
+	private void updateAudioControls() {
+		if (mMediaViewCollection != null) {
+			MediaContentPreviewView view = mMediaViewCollection.getFirstView();
+			if ((view instanceof PlayableMediaContentPreviewView)) {
+				((PlayableMediaContentPreviewView) view).setPlayPauseView(mLayoutControls, mMediaStatus);
+			} else {
+				mLayoutControls.setVisibility(View.GONE);
+				mMediaStatus.setVisibility(View.GONE);
+			}
+		}
 	}
 
 	private class ReadMoreClickListener implements View.OnClickListener
 	{
-		private final Item mItem;
+		private final String mLink;
 
-		public ReadMoreClickListener(Item item)
+		public ReadMoreClickListener(String link)
 		{
-			mItem = item;
+			mLink = link;
 		}
 
 		@Override
@@ -375,7 +414,7 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 		{
 			try
 			{
-				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(mItem.getLink()));
+				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(mLink));
 
 				String thisPackageName = App.getInstance().getPackageName();
 
@@ -411,7 +450,17 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 			catch (Exception e)
 			{
 				if (LOGGING)
-					Log.d(LOGTAG, "Error trying to open read more link: " + mItem.getLink());
+					Log.d(LOGTAG, "Error trying to open read more link: " + mLink);
+			}
+		}
+	}
+
+	public void pauseMediaPlayback() {
+		if (mMediaViewCollection != null) {
+			for (MediaContentPreviewView view : mMediaViewCollection.getViews()) {
+				if (view instanceof PlayableMediaContentPreviewView) {
+					((PlayableMediaContentPreviewView) view).pauseIfPlaying();
+				}
 			}
 		}
 	}

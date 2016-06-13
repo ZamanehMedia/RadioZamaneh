@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources> 
+    
+    <attr name="command" format="integer" />
+    <attr name="actionBarMenuIcon" format="reference" />
+    <attr name="actionBarMenuIconInset" format="dimension" />
+    <attr name="dot_total" format="integer" />
+    <attr name="dot_current" format="integer" />
+    <attr name="hide_if_only_one" format="boolean" defaultValue="true" />
+    <attr name="height_limit" format="float" default="0"/>
+    	
+    <declare-styleable name="CustomAppTheming">
+        <attr name="actionBarTextStyle" format="reference" />
+    </declare-styleable>
+         
+    <declare-styleable name="DottedProgressView">
+        <attr name="dot_distance" format="integer" />
+        <attr name="dot_radius" format="integer" />
+        <attr name="dot_color" format="color" />
+        <attr name="dot_rim_color" format="color" />
+        <attr name="dot_color_current" format="color" />
+        <attr name="dot_rim_color_current" format="color" />
+        <attr name="dot_total" />
+    	<attr name="dot_current" />
+    	<attr name="hide_if_only_one" />
+    	<attr name="android:gravity" />
+    </declare-styleable>
+
+    <declare-styleable name="PageIndicatorView">
+        <attr name="dot_total" />
+    	<attr name="dot_current" />
+    	<attr name="hide_if_only_one" />
+    	<attr name="android:gravity" />
+    	<attr name="android:drawable" />
+    </declare-styleable>
+    
+    <declare-styleable name="DropdownSpinner">
+        <attr name="dropdown_background" format="reference" />
+        <attr name="android:divider" />
+    </declare-styleable>
+
+    <declare-styleable name="Spinner">
+        <attr name="android:popupBackground" />
+        <attr name="android:divider" />
+    </declare-styleable>
+    
+    <declare-styleable name="CustomFontTextView" parent="TextView">
+        <attr name="font" format="string" />
+        <attr name="linked_text_view" format="reference" />
+        <attr name="fade_last_line" format="boolean" defaultValue="false" />
+        <attr name="android:maxLines" />
+        <attr name="android:lineSpacingExtra" />
+        <attr name="android:lineSpacingMultiplier" />
+        <attr name="android:ellipsize" />
+        </declare-styleable>
+    
+    <declare-styleable name="GroupView">
+        <attr name="header_layout" format="reference" />
+        <attr name="collapse_layout" format="reference" />
+        <attr name="header_text" format="reference" />
+        <attr name="header_sub_text" format="reference" />
+   	</declare-styleable>
+   	
+    <declare-styleable name="StoryItemPageView">
+        <attr name="show_author" format="boolean" default="true"/>
+        <attr name="show_content" format="boolean" default="true"/>
+        <attr name="show_source" format="boolean" default="true"/>
+    </declare-styleable>
+    
+    <declare-styleable name="StoryMediaContentView">
+        <attr name="show_placeholder" format="boolean" default="false"/>
+    </declare-styleable>
+       
+    <declare-styleable name="HeightLimitedLinearLayout">
+        <attr name="height_limit" />
+    </declare-styleable>    
+    
+    <declare-styleable name="HeightLimitedRelativeLayout">
+        <attr name="height_limit" />
+    </declare-styleable>
+
+    <declare-styleable name="RoundRelativeLayout">
+        <attr name="borderColor" format="color" />
+        <attr name="borderSize" format="dimension" />
+    </declare-styleable>
+</resources>

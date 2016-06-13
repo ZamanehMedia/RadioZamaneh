@@ -22,9 +22,11 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.opengl.GLES20;
 import android.os.Build;
@@ -369,5 +371,28 @@ public class UIHelpers
 		View view = activity.getCurrentFocus();
 		if (view != null)
 			inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+	}
+
+	public static Drawable getMirroringDrawable(Context context, Drawable drawable)
+	{
+		if (Build.VERSION.SDK_INT >= 19)
+		{
+			drawable.setAutoMirrored(true);
+		}
+		else
+		{
+			// Old API does not have the above handy function
+			if (drawable instanceof BitmapDrawable)
+			{
+				BitmapDrawable bd = (BitmapDrawable) drawable;
+				Matrix m = new Matrix();
+				m.setScale(-1, 1);
+				Bitmap src = bd.getBitmap();
+				Bitmap dst = Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), m, false);
+				dst.setDensity(src.getDensity());
+				drawable = new BitmapDrawable(context.getResources(), dst);
+			}
+		}
+		return drawable;
 	}
 }

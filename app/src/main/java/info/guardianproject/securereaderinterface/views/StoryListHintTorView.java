@@ -5,6 +5,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import info.guardianproject.securereader.Settings;
+import info.guardianproject.securereaderinterface.App;
 import info.guardianproject.securereaderinterface.R;
 
 public class StoryListHintTorView extends FrameLayout implements View.OnClickListener
@@ -98,7 +100,8 @@ public class StoryListHintTorView extends FrameLayout implements View.OnClickLis
 	{
 		if (isConnectedToTor)
 		{
-			mLlConnected.setVisibility(View.VISIBLE);
+			if (App.getSettings().syncFrequency() == Settings.SyncFrequency.Manual)
+				mLlConnected.setVisibility(View.VISIBLE);
 			mLlNotConnected.setVisibility(View.GONE);
 		}
 		else
@@ -116,6 +119,7 @@ public class StoryListHintTorView extends FrameLayout implements View.OnClickLis
 			mLlConnected.setVisibility(View.GONE);
 			mLlNotConnected.setVisibility(View.VISIBLE);
 		}
+		requestLayout();
 	}
 
 }

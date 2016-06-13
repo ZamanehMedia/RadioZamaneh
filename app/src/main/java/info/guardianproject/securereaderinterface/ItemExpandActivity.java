@@ -34,7 +34,7 @@ public class ItemExpandActivity extends FragmentActivityWithMenu implements Stor
 	public static final boolean LOGGING = false;
 
 	private ExpandingFrameLayout mFullStoryView;
-	private FullScreenStoryItemView mFullView;
+	protected FullScreenStoryItemView mFullView;
 	private ListView mFullListStories;
 	private int mFullOpeningOffset;
 	private boolean mInFullScreenMode;

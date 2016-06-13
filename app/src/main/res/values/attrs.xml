@@ -8,7 +8,8 @@
     <attr name="dot_current" format="integer" />
     <attr name="hide_if_only_one" format="boolean" defaultValue="true" />
     <attr name="height_limit" format="float" default="0"/>
-    	
+    <attr name="doNotMirror" format="boolean" default="false"/>
+
     <declare-styleable name="CustomAppTheming">
         <attr name="actionBarTextStyle" format="reference" />
     </declare-styleable>

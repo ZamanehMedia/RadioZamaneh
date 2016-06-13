@@ -5,10 +5,14 @@ import info.guardianproject.securereader.MediaDownloader.MediaDownloaderCallback
 import info.guardianproject.securereaderinterface.App;
 import info.guardianproject.securereaderinterface.adapters.DownloadsAdapter;
 import info.guardianproject.securereaderinterface.views.ApplicationMediaContentPreviewView;
+import info.guardianproject.securereaderinterface.views.AudioMediaContentPreviewView;
 import info.guardianproject.securereaderinterface.views.EPubMediaContentPreviewView;
 import info.guardianproject.securereaderinterface.views.ImageMediaContentPreviewView;
 import info.guardianproject.securereaderinterface.views.MediaContentPreviewView;
+import info.guardianproject.securereaderinterface.views.ThumbnailMediaContentPreviewView;
 import info.guardianproject.securereaderinterface.views.VideoMediaContentPreviewView;
+import info.guardianproject.securereaderinterface.views.YoutubeMediaContentPreviewView;
+import info.guardianproject.securereaderinterface.views.YoutubeMediaContentView;
 
 import java.util.ArrayList;
 
@@ -35,6 +39,8 @@ public class MediaViewCollection
 	private Item mStory;
 	private ArrayList<MediaContentLoadInfo> mLoadInfos;
 	private ArrayList<MediaContentPreviewView> mViews;
+	private ThumbnailLoadInfo mThumbnailLoadInfo;
+	private ThumbnailMediaContentPreviewView mThumbnailView;
 	private ArrayList<OnMediaLoadedListener> mListeners;
 	private boolean mHasBeenRecycled;
 	private ScaleType mDefaultScaleType;
@@ -60,6 +66,8 @@ public class MediaViewCollection
 		mForceBitwiseDownloads = forceBitwiseDownloads;
 		mUseThisThread = useThisThread;
 		createMediaViews();
+		if (mThumbnailLoadInfo != null)
+			mThumbnailLoadInfo.load(mForceBitwiseDownloads);
 		for (MediaContentLoadInfo info : mLoadInfos)
 		{
 			info.load(mForceBitwiseDownloads);
@@ -100,8 +108,12 @@ public class MediaViewCollection
 				if (mediaContent == null || mediaContent.getUrl() == null || mediaContent.getType() == null)
 					continue;
 
-				MediaContentLoadInfo info = new MediaContentLoadInfo(mediaContent, idxView++);
-				mLoadInfos.add(info);
+				if ("image/thumbnail".equals(mediaContent.getType())) {
+					mThumbnailLoadInfo = new ThumbnailLoadInfo(mediaContent);
+				} else {
+					MediaContentLoadInfo info = new MediaContentLoadInfo(mediaContent, idxView++);
+					mLoadInfos.add(info);
+				}
 			}
 		}
 	}
@@ -120,9 +132,13 @@ public class MediaViewCollection
 	private void createMediaView(MediaContentLoadInfo content)
 	{
 		MediaContentPreviewView mediaView = null;
-		
+
 		// Create a view for it
-		if (content.isVideo())
+		if (content.getMediaContent().getType().startsWith("video/youtube")) {
+			YoutubeMediaContentPreviewView vmc = new YoutubeMediaContentPreviewView(mContext);
+			mediaView = vmc;
+		}
+		else if (content.isVideo())
 		{
 			VideoMediaContentPreviewView vmc = new VideoMediaContentPreviewView(mContext);
 			vmc.setScaleType(mDefaultScaleType);
@@ -140,7 +156,8 @@ public class MediaViewCollection
 		}
 		else if (content.isAudio())
 		{
-			VideoMediaContentPreviewView vmc = new VideoMediaContentPreviewView(mContext);
+			AudioMediaContentPreviewView vmc = new AudioMediaContentPreviewView(mContext);
+			vmc.setLoadInfo(content);
 			mediaView = vmc;
 		}
 		else
@@ -208,14 +225,14 @@ public class MediaViewCollection
 	{
 		public info.guardianproject.iocipher.File mFile;
 		public java.io.File mFileNonVFS;
-		
-		private MediaContent mContent;
-		private int mIndex;
-		private boolean mIsLoading;
-		private boolean mIsLoaded;
-		private boolean mWasCached;
-		private boolean mInConstructor;
-		private boolean mNotifyDownloadsAdapter;
+
+		protected MediaContent mContent;
+		protected int mIndex;
+		protected boolean mIsLoading;
+		protected boolean mIsLoaded;
+		protected boolean mWasCached;
+		protected boolean mInConstructor;
+		protected boolean mNotifyDownloadsAdapter;
 		
 		public MediaContentLoadInfo(MediaContent content, int index)
 		{
@@ -236,7 +253,7 @@ public class MediaViewCollection
 
 				if (mFile != null || mFileNonVFS != null)
 				{
-					onMediaAvailable(mContent, mIndex, mWasCached, mFileNonVFS, mFile);
+					onMediaAvailable();
 					if (mNotifyDownloadsAdapter)
 						DownloadsAdapter.downloaded(MediaViewCollection.this);
 				}
@@ -262,6 +279,11 @@ public class MediaViewCollection
 		public boolean isLoading()
 		{
 			return mIsLoading;
+		}
+
+		public boolean isThumbnail()
+		{
+			return "image/thumbnail".equals(mContent.getType());
 		}
 
 		public boolean isVideo()
@@ -293,7 +315,7 @@ public class MediaViewCollection
 				mIsLoading = false;
 				mIsLoaded = true;
 				if (!mInConstructor)
-					onMediaAvailable(mContent, mIndex, mWasCached, mFileNonVFS, mFile);
+					onMediaAvailable();
 				if (mNotifyDownloadsAdapter)
 					DownloadsAdapter.downloaded(MediaViewCollection.this);
 			}
@@ -310,16 +332,33 @@ public class MediaViewCollection
 				mIsLoading = false;
 				mIsLoaded = true;
 				if (!mInConstructor)
-					onMediaAvailable(mContent, mIndex, mWasCached, mFileNonVFS, mFile);
+					onMediaAvailable();
 				if (mNotifyDownloadsAdapter)
 					DownloadsAdapter.downloaded(MediaViewCollection.this);
 			};
 		}
 
-		
+		protected void onMediaAvailable() {
+			MediaViewCollection.this.onMediaAvailable(mContent, null, mIndex, mWasCached, mFileNonVFS, mFile);
+		}
+
 		public MediaContent getMediaContent()
 		{
 			return mContent;
+		}
+	}
+
+	public class ThumbnailLoadInfo extends MediaContentLoadInfo {
+		public ThumbnailLoadInfo(MediaContent content)
+		{
+			super(content, 0);
+		}
+
+		protected void onMediaAvailable()
+		{
+			if (mThumbnailView == null)
+				mThumbnailView = new ThumbnailMediaContentPreviewView(mContext, MediaViewCollection.this);
+			MediaViewCollection.this.onMediaAvailable(mContent, mThumbnailView, -1, mWasCached, mFileNonVFS, mFile);
 		}
 	}
 
@@ -335,7 +374,7 @@ public class MediaViewCollection
 			});
 	}
 
-	public void onMediaAvailable(MediaContent content, int index, boolean wasCached, java.io.File mediaFileNonVFS, info.guardianproject.iocipher.File mediaFile)
+	public void onMediaAvailable(MediaContent content, MediaContentPreviewView mediaView, int index, boolean wasCached, java.io.File mediaFileNonVFS, info.guardianproject.iocipher.File mediaFile)
 	{
 		if (mHasBeenRecycled)
 		{
@@ -343,8 +382,9 @@ public class MediaViewCollection
 				Log.v(LOGTAG, "Media downloaded, but already recycled. Ignoring.");
 			return;
 		}
-		
-		MediaContentPreviewView mediaView = mViews.get(index);
+
+		if (mediaView == null)
+			mediaView = mViews.get(index);
 		mediaView.setMediaContent(content, mediaFile, mediaFileNonVFS, mUseThisThread);		
 
 		ArrayList<OnMediaLoadedListener> listeners;
@@ -416,5 +456,9 @@ public class MediaViewCollection
 				}
 			}
 		}
+	}
+
+	public ThumbnailMediaContentPreviewView getThumbnailView() {
+		return mThumbnailView;
 	}
 }

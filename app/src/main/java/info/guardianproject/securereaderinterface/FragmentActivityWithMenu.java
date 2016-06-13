@@ -3,26 +3,20 @@ package info.guardianproject.securereaderinterface;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
-import info.guardianproject.securereaderinterface.R;
-import info.guardianproject.securereader.Settings.ProxyType;
-import info.guardianproject.securereader.Settings.SyncMode;
-import info.guardianproject.securereader.SocialReader;
-import info.guardianproject.securereaderinterface.adapters.DownloadsAdapter;
+import info.guardianproject.securereader.Settings;
 import info.guardianproject.securereaderinterface.models.FeedFilterType;
 import info.guardianproject.securereaderinterface.ui.LayoutFactoryWrapper;
 import info.guardianproject.securereaderinterface.ui.UICallbacks;
 import info.guardianproject.securereaderinterface.ui.UICallbacks.OnCallbackListener;
 import info.guardianproject.securereaderinterface.uiutil.ActivitySwitcher;
 import info.guardianproject.securereaderinterface.uiutil.UIHelpers;
-import info.guardianproject.securereaderinterface.views.FeedFilterView;
-import info.guardianproject.securereaderinterface.views.FeedFilterView.FeedFilterViewCallbacks;
-import info.guardianproject.securereaderinterface.widgets.CheckableButton;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
@@ -30,6 +24,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.NavigationView;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.LayoutInflaterCompat;
@@ -38,7 +33,7 @@ import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -48,6 +43,7 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.Transformation;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -55,7 +51,7 @@ import android.widget.TextView;
 import com.tinymission.rss.Feed;
 import com.tinymission.rss.Item;
 
-public class FragmentActivityWithMenu extends LockableActivity implements FeedFilterViewCallbacks, OnCallbackListener {
+public class FragmentActivityWithMenu extends LockableActivity implements OnCallbackListener, NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
     public static final String LOGTAG = "FragmentActivityWithMenu";
     public static final boolean LOGGING = false;
 
@@ -82,7 +78,7 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
     /**
      * The main menu that will host all content links.
      */
-    protected View mLeftSideMenu;
+    protected NavigationView mLeftSideMenu;
     protected DrawerLayout mDrawerLayout;
     protected ActionBarDrawerToggle mDrawerToggle;
 
@@ -91,6 +87,10 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
     protected View mToolbarShadow;
     private LayoutInflater mInflater;
 
+    // Radio player
+    private View mRadioPlayButton;
+    private ImageView mRadioPlayButtonIcon;
+    private TextView mRadioPlayButtonText;
 
     protected void setMenuIdentifier(int idMenu) {
         mIdMenu = idMenu;
@@ -121,9 +121,11 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //this.getWindow().setBackgroundDrawable(null);
         LayoutInflater inflater = LayoutInflater.from(this);
         mInflater = inflater.cloneInContext(this);
         LayoutInflaterCompat.setFactory(mInflater, new LayoutFactoryWrapper(inflater.getFactory()));
+        //this.getWindow().setBackgroundDrawable(null);
 
         UICallbacks.getInstance().addListener(this);
 
@@ -151,10 +153,16 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
             if (!useLeftSideMenu()) {
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             } else {
-                mMenuViewHolder = null;
-                mLeftSideMenu = mDrawerLayout.findViewById(R.id.left_drawer);
-                if (mLeftSideMenu != null)
-                    ((FeedFilterView) mLeftSideMenu.findViewById(R.id.viewFeedFilter)).setFeedFilterViewCallbacks(this);
+                //mMenuViewHolder = null;
+                mLeftSideMenu = (NavigationView)mDrawerLayout.findViewById(R.id.left_drawer);
+                if (mLeftSideMenu != null) {
+                    mLeftSideMenu.setNavigationItemSelectedListener(this);
+                    mRadioPlayButton = mLeftSideMenu.getHeaderView(0).findViewById(R.id.btnPlayRadio);
+                    mRadioPlayButtonIcon = (ImageView)mRadioPlayButton.findViewById(R.id.btnPlayRadioIcon);
+                    mRadioPlayButtonText = (TextView)mRadioPlayButton.findViewById(R.id.btnPlayRadioText);
+                    mRadioPlayButton.setOnClickListener(this);
+                    updateRadioPlayerUI();
+                }//   ((FeedFilterView) mLeftSideMenu.findViewById(R.id.viewFeedFilter)).setFeedFilterViewCallbacks(this);
                 mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, 0, 0) {
                     private boolean isClosed = true;
 
@@ -171,15 +179,6 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
                         if (isClosed && slideOffset > 0) {
                             isClosed = false;
                             updateLeftSideMenu();
-                            if (mMenuViewHolder != null) {
-                                mMenuViewHolder.viewFeedFilter.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mMenuViewHolder.viewFeedFilter.setSelectionAfterHeaderView();
-                                    }
-                                });
-                            }
-                            mMenuViewHolder.viewFeedFilter.invalidateViews();
                         }
                     }
                 };
@@ -241,6 +240,44 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
             invalidateOptionsMenu();
             updateLeftSideMenu();
         }
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRadioBroadcastReceiver, new IntentFilter(App.RADIOPLAYER_BROADCAST_ACTION));
+        updateRadioPlayerUI();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRadioBroadcastReceiver);
+    }
+
+    private BroadcastReceiver mRadioBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateRadioPlayerUI();
+        }
+    };
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        final Intent i = item.getIntent();
+        if (i != null) {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+            mDrawerLayout.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    UICallbacks.setFeedFilter(FeedFilterType.SINGLE_FEED, i.getLongExtra("id", 0), this);
+                }
+            }, 250);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == mRadioPlayButton) {
+            App.getInstance().toggleRadioPlayer();
+        }
     }
 
     private final class KillReceiver extends BroadcastReceiver {
@@ -300,7 +337,6 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
         getMenuInflater().inflate(mIdMenu, menu);
 
         getMenuInflater().inflate(R.menu.overflow_main, menu);
-
         colorizeMenuItems();
         return true;
     }
@@ -361,15 +397,27 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
                 return true;
             }
 
+/*
             case R.id.menu_media_downloads: {
                 UICallbacks.handleCommand(this, R.integer.command_downloads, null);
                 return true;
             }
+*/
 
-            case R.id.menu_manage_feeds: {
-                UICallbacks.handleCommand(this, R.integer.command_feed_add, null);
+
+/*
+            case R.id.menu_account: {
+                UICallbacks.handleCommand(this, R.integer.command_account, null);
                 return true;
             }
+*/
+
+		/*
+        case R.id.menu_manage_feeds:
+		{
+			UICallbacks.handleCommand(this, R.integer.command_feed_add, null);
+			return true;
+		}*/
 
             case R.id.menu_preferences: {
                 UICallbacks.handleCommand(this, R.integer.command_settings, null);
@@ -380,6 +428,7 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
                 UICallbacks.handleCommand(this, R.integer.command_help, null);
                 return true;
             }
+/*
 
             case R.id.menu_share_app: {
                 UICallbacks.handleCommand(this, R.integer.command_shareapp, null);
@@ -390,6 +439,7 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
                 App.getInstance().socialReader.lockApp();
                 return true;
             }
+*/
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -451,96 +501,67 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
         // Override this to start doing stuff after the animation is complete
     }
 
-    private class MenuViewHolder {
-        public CheckableButton btnTorStatus;
-        public CheckableButton btnShowPhotos;
-        public FeedFilterView viewFeedFilter;
-    }
-
-    private MenuViewHolder mMenuViewHolder;
-
     protected void updateLeftSideMenu() {
         if (mLeftSideMenu != null) {
-            createMenuViewHolder();
             new UpdateLeftSideMenuTask().execute();
-        }
-    }
-
-    private void createMenuViewHolder() {
-        if (mMenuViewHolder == null) {
-            mMenuViewHolder = new MenuViewHolder();
-            View menuView = mLeftSideMenu;
-            mMenuViewHolder.btnTorStatus = (CheckableButton) menuView.findViewById(R.id.btnMenuTor);
-            mMenuViewHolder.btnShowPhotos = (CheckableButton) menuView.findViewById(R.id.btnMenuPhotos);
-            mMenuViewHolder.viewFeedFilter = (FeedFilterView) menuView.findViewById(R.id.viewFeedFilter);
-
-            // Hookup events
-            mMenuViewHolder.btnTorStatus.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (App.getSettings().requireProxy()) {
-                        if (App.getInstance().socialReader.isOnline() == SocialReader.NOT_ONLINE_NO_PROXY) {
-                            mDrawerLayout.closeDrawers();
-                            App.getInstance().socialReader.connectProxy(FragmentActivityWithMenu.this);
-                        }
-                    }
-                }
-            });
-
-            mMenuViewHolder.btnShowPhotos.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (App.getSettings().syncMode() == SyncMode.LetItFlow)
-                        App.getSettings().setSyncMode(SyncMode.BitWise);
-                    else
-                        App.getSettings().setSyncMode(SyncMode.LetItFlow);
-                    mMenuViewHolder.btnShowPhotos.setChecked(App.getSettings().syncMode() == SyncMode.LetItFlow);
-                }
-            });
         }
     }
 
     class UpdateLeftSideMenuTask extends ThreadedTask<Void, Void, Void> {
         private ArrayList<Feed> feeds;
-        private int countFavorites;
-        private int countShared;
-        private boolean isUsingProxy;
-        private boolean isUsingPsiphon;
-        private boolean showImages;
-        private boolean isOnline;
+        private Feed audioFeed;
+        private Feed videoFeed;
+        private Feed generalFeed;
 
         @Override
         protected Void doInBackground(Void... values) {
-            createMenuViewHolder();
             feeds = App.getInstance().socialReader.getSubscribedFeedsList();
-            countFavorites = App.getInstance().socialReader.getAllFavoritesCount();
-            countShared = App.getInstance().socialReader.getAllSharedCount();
-            isUsingProxy = App.getInstance().socialReader.useProxy();
-            isUsingPsiphon = (App.getSettings().proxyType() == ProxyType.Psiphon);
-            isOnline = App.getInstance().socialReader.isProxyOnline();
-            showImages = (App.getSettings().syncMode() == SyncMode.LetItFlow);
+            for (Feed f : feeds) {
+                if (App.isAudioFeed(f))
+                    audioFeed = f;
+                else if (App.isVideoFeed(f))
+                    videoFeed = f;
+                else if (App.isGeneralFeed(f))
+                    generalFeed = f;
+            }
+            feeds.remove(audioFeed);
+            feeds.remove(videoFeed);
+            feeds.remove(generalFeed);
             return null;
         }
 
         @Override
         protected void onPostExecute(Void result) {
-            mMenuViewHolder.viewFeedFilter.updateList(feeds, countFavorites, countShared);
-
-            // Update TOR connection status
-            //
-            if (isUsingProxy) {
-                mMenuViewHolder.btnTorStatus.setChecked(isOnline);
-                if (isUsingPsiphon)
-                    mMenuViewHolder.btnTorStatus.setText(isOnline ? R.string.menu_psiphon_connected : R.string.menu_psiphon_not_connected);
-                else
-                    mMenuViewHolder.btnTorStatus.setText(isOnline ? R.string.menu_tor_connected : R.string.menu_tor_not_connected);
-                mMenuViewHolder.btnTorStatus.setCompoundDrawablesWithIntrinsicBounds(null, mMenuViewHolder.btnTorStatus.getContext().getResources().getDrawable(isUsingPsiphon ? R.drawable.button_psiphon_icon_selector : R.drawable.button_tor_icon_selector), null, null);
-            } else {
-                mMenuViewHolder.btnTorStatus.setChecked(false);
-                mMenuViewHolder.btnTorStatus.setText(R.string.menu_tor_not_connected);
-                mMenuViewHolder.btnTorStatus.setCompoundDrawablesWithIntrinsicBounds(null, mMenuViewHolder.btnTorStatus.getContext().getResources().getDrawable(R.drawable.button_tor_icon_selector), null, null);
+            Menu menu = mLeftSideMenu.getMenu();
+            menu.clear();
+            int id = 1;
+            if (audioFeed != null) {
+                MenuItem mi = menu.add(1, id++, id, audioFeed.getTitle());
+                mi.setIcon(R.drawable.ic_podcast);
+                Intent i = new Intent();
+                i.putExtra("id", audioFeed.getDatabaseId());
+                mi.setIntent(i);
             }
-            mMenuViewHolder.btnShowPhotos.setChecked(showImages);
+            if (videoFeed != null) {
+                MenuItem mi = menu.add(1, id++, id, videoFeed.getTitle());
+                mi.setIcon(R.drawable.ic_video);
+                Intent i = new Intent();
+                i.putExtra("id", videoFeed.getDatabaseId());
+                mi.setIntent(i);
+            }
+            if (generalFeed != null) {
+                MenuItem mi = menu.add(1, id++, id, generalFeed.getTitle());
+                mi.setIcon(R.drawable.ic_news);
+                Intent i = new Intent();
+                i.putExtra("id", generalFeed.getDatabaseId());
+                mi.setIntent(i);
+            }
+            for (Feed f : feeds) {
+                MenuItem mi = menu.add(2, id++, id, f.getTitle());
+                Intent i = new Intent();
+                i.putExtra("id", f.getDatabaseId());
+                mi.setIntent(i);
+            }
         }
     }
 
@@ -564,7 +585,6 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
         return super.getSystemService(name);
     }
 
-    @Override
     public void receiveShare() {
         waitForMenuCloseAndRunCommand(new Runnable() {
             @Override
@@ -574,7 +594,6 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
         });
     }
 
-    @Override
     public void viewFavorites() {
         waitForMenuCloseAndRunCommand(new Runnable() {
             @Override
@@ -585,7 +604,6 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
         });
     }
 
-    @Override
     public void viewPopular() {
         waitForMenuCloseAndRunCommand(new Runnable() {
             @Override
@@ -596,7 +614,6 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
         });
     }
 
-    @Override
     public void viewDownloads() {
         waitForMenuCloseAndRunCommand(new Runnable() {
             @Override
@@ -606,7 +623,6 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
         });
     }
 
-    @Override
     public void viewShared() {
         waitForMenuCloseAndRunCommand(new Runnable() {
             @Override
@@ -617,7 +633,6 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
         });
     }
 
-    @Override
     public void viewFeed(final Feed feedToView) {
         waitForMenuCloseAndRunCommand(new Runnable() {
             @Override
@@ -627,16 +642,6 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
                 else
                     UICallbacks.setFeedFilter(FeedFilterType.SINGLE_FEED, feedToView.getDatabaseId(), this);
                 UICallbacks.handleCommand(FragmentActivityWithMenu.this, R.integer.command_news_list, null);
-            }
-        });
-    }
-
-    @Override
-    public void addNew() {
-        waitForMenuCloseAndRunCommand(new Runnable() {
-            @Override
-            public void run() {
-                UICallbacks.handleCommand(FragmentActivityWithMenu.this, R.integer.command_feed_add, null);
             }
         });
     }
@@ -658,8 +663,6 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
 
     @Override
     public void onFeedSelect(FeedFilterType type, long feedId, Object source) {
-        if (mMenuViewHolder != null)
-            mMenuViewHolder.viewFeedFilter.invalidateViews();
     }
 
     @Override
@@ -912,6 +915,34 @@ public class FragmentActivityWithMenu extends LockableActivity implements FeedFi
         protected void applyTransformation(float interpolatedTime, Transformation t) {
             int newOffset = (int) (fromOffset + ((toOffset - fromOffset) * interpolatedTime));
             setToolbarHideOffset(newOffset);
+        }
+    }
+
+    private void updateRadioPlayerUI() {
+        if (mRadioPlayButton != null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    switch (App.getInstance().getRadioPlayerStatus()) {
+                        case App.RADIO_PLAYER_IDLE:
+                        case App.RADIO_PLAYER_ERROR:
+                            mRadioPlayButtonText.setText(R.string.radio_play);
+                            mRadioPlayButtonIcon.setImageResource(R.drawable.ic_play);
+                            mRadioPlayButtonIcon.clearAnimation();
+                            break;
+                        case App.RADIO_PLAYER_PLAYING:
+                            mRadioPlayButtonText.setText(R.string.radio_stop);
+                            mRadioPlayButtonIcon.setImageResource(R.drawable.ic_stop_white_24dp);
+                            mRadioPlayButtonIcon.clearAnimation();
+                            break;
+                        case App.RADIO_PLAYER_LOADING:
+                            mRadioPlayButtonText.setText(R.string.radio_loading);
+                            mRadioPlayButtonIcon.setImageResource(R.drawable.ic_stop_white_24dp);
+                            mRadioPlayButtonIcon.startAnimation(AnimationUtils.loadAnimation(getBaseContext(), R.anim.rotate));
+                            break;
+                    }
+                }
+            });
         }
     }
 }

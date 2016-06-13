@@ -2,10 +2,11 @@ package info.guardianproject.securereaderinterface.widgets;
 
 import info.guardianproject.securereaderinterface.uiutil.FontManager;
 import android.content.Context;
+import android.support.v7.widget.AppCompatRadioButton;
 import android.util.AttributeSet;
 import android.widget.RadioButton;
 
-public class CustomFontRadioButton extends RadioButton {
+public class CustomFontRadioButton extends AppCompatRadioButton {
 
 	@SuppressWarnings("unused")
 	private CustomFontTextViewHelper mHelper;

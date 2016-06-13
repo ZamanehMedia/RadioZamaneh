@@ -28,16 +28,23 @@
 		<activity android:name="net.hockeyapp.android.UpdateActivity" />
         
 		<service android:name="info.guardianproject.cacheword.CacheWordService" 
-		    android:enabled="true" android:exported="false" />        
-        
+		    android:enabled="true" android:exported="false" />
+
         <activity
-            android:name="info.guardianproject.securereaderinterface.MainActivity"
+            android:name="info.guardianproject.zt.SplashActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/title_activity_main">
+            android:label="@string/title_activity_main"
+            android:theme="@style/AppTheme.Splash"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="info.guardianproject.securereaderinterface.MainActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/title_activity_main">
         </activity>
         <activity
             android:name="info.guardianproject.securereaderinterface.HelpActivity"
@@ -161,16 +168,6 @@
             android:theme="@style/Theme.Transparent" >
         </activity>
         <activity
-            android:name=".PanicResponderActivity"
-            android:launchMode="singleInstance"
-            android:noHistory="true"
-            android:theme="@android:style/Theme.NoDisplay">
-            <intent-filter>
-                <action android:name="info.guardianproject.panic.action.TRIGGER" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name="info.guardianproject.securereaderinterface.ViewMediaActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_view_media" >
@@ -183,7 +180,8 @@
         <activity
             android:name="info.guardianproject.securereaderinterface.LockScreenActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/title_activity_lock_screen" >
+            android:label="@string/title_activity_lock_screen"
+            android:theme="@style/AppTheme.Transparent">
         </activity>
         <activity
             android:name="info.guardianproject.securereaderinterface.KillActivity"

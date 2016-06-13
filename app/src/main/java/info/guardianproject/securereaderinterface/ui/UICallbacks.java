@@ -1,10 +1,10 @@
 package info.guardianproject.securereaderinterface.ui;
 
+import info.guardianproject.securereaderinterface.App;
 import info.guardianproject.securereaderinterface.R;
 import info.guardianproject.securereader.SocialReader;
 import info.guardianproject.securereaderinterface.AddFeedActivity;
 import info.guardianproject.securereaderinterface.AddPostActivity;
-import info.guardianproject.securereaderinterface.App;
 import info.guardianproject.securereaderinterface.CreateAccountActivity;
 import info.guardianproject.securereaderinterface.DownloadEpubReaderActivity;
 import info.guardianproject.securereaderinterface.DownloadsActivity;

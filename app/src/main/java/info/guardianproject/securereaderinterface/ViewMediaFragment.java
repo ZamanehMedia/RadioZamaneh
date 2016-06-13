@@ -11,6 +11,7 @@ import info.guardianproject.securereaderinterface.models.OnMediaOrientationListe
 import info.guardianproject.securereaderinterface.views.ImageMediaContentView;
 import info.guardianproject.securereaderinterface.views.VideoMediaContentView;
 import info.guardianproject.securereaderinterface.R;
+import info.guardianproject.securereaderinterface.views.YoutubeMediaContentView;
 
 import com.tinymission.rss.MediaContent;
 
@@ -34,11 +35,19 @@ public class ViewMediaFragment extends Fragment implements OnMediaOrientationLis
 		((ViewGroup) mRootView).removeAllViews();
 		boolean isVideo = mediaContent.getType().startsWith("video/");
 		boolean isAudio = mediaContent.getType().startsWith("audio/");
-		if (isVideo || isAudio)
+		if (mediaContent.getType().startsWith("video/youtube")) {
+			YoutubeMediaContentView ymc = new YoutubeMediaContentView(mRootView.getContext());
+			ymc.setMediaContent(mediaContent);
+			mMediaContentView = ymc;
+		}
+		else if (isVideo || isAudio)
 		{
 			VideoMediaContentView vmc = new VideoMediaContentView(mRootView.getContext());
 			vmc.setOnMediaOrientationListener(this);
-			vmc.setContentUri(Uri.parse(mediaContent.getUrl()));
+			ProxyMediaStreamServer proxyMediaServer = App.getInstance().getProxyMediaStreamServer();
+			if (proxyMediaServer != null) {
+				vmc.setContentUri(Uri.parse(proxyMediaServer.getProxyUrlForMediaContent(mediaContent)));
+			}
 			mMediaContentView = vmc;
 		}
 		else

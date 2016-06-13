@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<opml version="1.1">
+  <head>
+    <title>Big Buffalo - Default Feeds</title>
+    <dateCreated>2013-07-18T00:38:00+00:00</dateCreated>
+    <dateModified>2013-07-18T00:38:00+00:00</dateModified>
+  </head>
+  <body>
+      <outline category="en_US" text="رادیو زمانه" htmlUrl="http://radiozamaneh.com/feed" xmlUrl="http://radiozamaneh.com/feed" subscribe="true" />
+      <outline category="en_US" text="اخبار – رادیو زمانه" htmlUrl="http://www.radiozamaneh.com/category/news/feed" xmlUrl="http://www.radiozamaneh.com/category/news/feed" subscribe="true" />
+      <outline category="en_US" text="سیاست – رادیو زمانه" htmlUrl="http://www.radiozamaneh.com/category/politics/feed" xmlUrl="http://www.radiozamaneh.com/category/politics/feed" subscribe="true" />
+      <outline category="en_US" text="اقتصاد – رادیو زمانه" htmlUrl="http://www.radiozamaneh.com/category/economy/feed" xmlUrl="http://www.radiozamaneh.com/category/economy/feed" subscribe="true" />
+      <outline category="en_US" text="فرهنگ – رادیو زمانه" htmlUrl="http://www.radiozamaneh.com/category/culture/feed" xmlUrl="http://www.radiozamaneh.com/category/culture/feed" subscribe="true" />
+      <outline category="en_US" text="جامعه و حقوق – رادیو زمانه" htmlUrl="http://www.radiozamaneh.com/category/societyandlaw/feed" xmlUrl="http://www.radiozamaneh.com/category/societyandlaw/feed" subscribe="true" />
+      <outline category="en_US" text="دانش و محیط زیست – رادیو زمانه" htmlUrl="http://www.radiozamaneh.com/category/science-environment/feed" xmlUrl="http://www.radiozamaneh.com/category/science-environment/feed" subscribe="true" />
+      <outline category="en_US" text="اندیشه – رادیو زمانه" htmlUrl="http://www.radiozamaneh.com/category/idea/feed" xmlUrl="http://www.radiozamaneh.com/category/idea/feed" subscribe="true" />
+      <outline category="en_US" text="زندگی – رادیو زمانه" htmlUrl="http://www.radiozamaneh.com/category/living/feed" xmlUrl="http://www.radiozamaneh.com/category/living/feed" subscribe="true" />
+      <outline category="en_US" text="پرونده‌های ویژه – رادیو زمانه" htmlUrl="http://www.radiozamaneh.com/category/dossiers/feed" xmlUrl="http://www.radiozamaneh.com/category/dossiers/feed" subscribe="true" />
+      <outline category="en_US" text="کتاب زمانه – رادیو زمانه" htmlUrl="http://www.radiozamaneh.com/category/rzbook/feed" xmlUrl="http://www.radiozamaneh.com/category/rzbook/feed" subscribe="true" />
+      <outline category="en_US" text="radiozamaneh" htmlUrl="http://feeds.soundcloud.com/users/soundcloud:users:12366080/sounds.rss" xmlUrl="http://feeds.soundcloud.com/users/soundcloud:users:12366080/sounds.rss" subscribe="true" />
+      <outline category="en_US" text="Uploads from Radio Zamaneh on YouTube" htmlUrl="https://www.youtube.com/feeds/videos.xml?channel_id=UC4IPXv7mHV08eSmqg8RmwVA" xmlUrl="https://www.youtube.com/feeds/videos.xml?channel_id=UC4IPXv7mHV08eSmqg8RmwVA" subscribe="true" />
+  </body>
+</opml> 

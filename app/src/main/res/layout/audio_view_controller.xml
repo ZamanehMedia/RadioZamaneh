@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/controls"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    android:fitsSystemWindows="true">
+
+    <SeekBar
+        android:background="@drawable/audio_progress_background"
+        android:id="@+id/seekbar"
+        android:layout_width="0dip"
+        android:layout_height="10dp"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:layout_weight="1"
+        android:maxHeight="10dp"
+        android:minHeight="10dp"
+        android:progress="80"
+        android:progressDrawable="@drawable/audio_progress_drawable"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:thumb="@drawable/audio_progress_thumb"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        android:indeterminateDrawable="@drawable/audio_progress_drawable"
+        android:max="100"
+        android:secondaryProgress="90"
+        android:thumbOffset="15dp"
+        android:splitTrack="false"
+        />
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+
+</RelativeLayout>

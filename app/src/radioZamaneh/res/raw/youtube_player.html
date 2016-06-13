@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<body style='margin:0;padding:0;background-color:#000000;'>
+
+<!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+<div id="player" style='margin:0;padding:0;background-color:#000000;'></div>
+
+<script>
+      var isVideoLoaded = false;
+      var isLoadingVideo = false;
+
+      var tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      var player;
+      function onYouTubeIframeAPIReady() {
+          Android.onYoutubeFrameLoaded();
+          player = new YT.Player('player', {
+            width: window.innerWidth,
+            height: window.innerHeight,
+          playerVars: {
+            origin: 'https://www.youtube.com',
+            controls: 0,
+            modestbranding: 1,
+            rel: 0,
+            showinfo: 0
+          },
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        });
+      }
+
+      function onPlayerReady(event) {
+        Android.onYoutubeFrameReady();
+      }
+
+      function onPlayerStateChange(event) {
+        if (!isVideoLoaded && event.data == 5 && isLoadingVideo) {
+            isVideoLoaded = true;
+            isLoadingVideo = false;
+            Android.isCueing(false);
+        }
+        if (isVideoLoaded) {
+            Android.onStateChange(event.data);
+        }
+      }
+
+      function updateProgress() {
+          Android.onProgress(player.getCurrentTime(), player.getDuration(), player.getVideoLoadedFraction());
+      }
+
+      function play() {
+        if (!isVideoLoaded) {
+            isLoadingVideo = true;
+            Android.isCueing(true);
+            player.cueVideoById({'videoId': '%VIDEOID%', 'suggestedQuality': 'small'});
+        } else {
+            player.playVideo();
+        }
+      }
+
+      function pause() {
+        //if (player.getPlayerState() == 1) { // playing
+            player.pauseVideo();
+        //} else {
+        //    player.stopVideo();
+        //}
+      }
+
+      function seekTo(seconds) {
+        player.seekTo(seconds, true);
+      }
+
+</script>
+</body>
+</html>

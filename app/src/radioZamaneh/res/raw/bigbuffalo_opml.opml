@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<opml version="1.1">
+  <head>
+    <title>Big Buffalo - Default Feeds</title>
+    <dateCreated>2013-07-18T00:38:00+00:00</dateCreated>
+    <dateModified>2013-07-18T00:38:00+00:00</dateModified>
+  </head>
+  <body>
+      <outline category="en_US" text="All Categories" htmlUrl="http://radiozamaneh.com/feed" xmlUrl="http://radiozamaneh.com/feed" subscribe="true" />
+      <outline category="en_US" text="News" htmlUrl="http://www.radiozamaneh.com/category/news/feed" xmlUrl="http://www.radiozamaneh.com/category/news/feed" subscribe="true" />
+      <outline category="en_US" text="Politics" htmlUrl="http://www.radiozamaneh.com/category/politics/feed" xmlUrl="http://www.radiozamaneh.com/category/politics/feed" subscribe="true" />
+      <outline category="en_US" text="Economy" htmlUrl="http://www.radiozamaneh.com/category/economy/feed" xmlUrl="http://www.radiozamaneh.com/category/economy/feed" subscribe="true" />
+      <outline category="en_US" text="Culture" htmlUrl="http://www.radiozamaneh.com/category/culture/feed" xmlUrl="http://www.radiozamaneh.com/category/culture/feed" subscribe="true" />
+      <outline category="en_US" text="Society" htmlUrl="http://www.radiozamaneh.com/category/societyandlaw/feed" xmlUrl="http://www.radiozamaneh.com/category/societyandlaw/feed" subscribe="true" />
+      <outline category="en_US" text="Science and Environment" htmlUrl="http://www.radiozamaneh.com/category/science-environment/feed" xmlUrl="http://www.radiozamaneh.com/category/science-environment/feed" subscribe="true" />
+      <outline category="en_US" text="Idea" htmlUrl="http://www.radiozamaneh.com/category/idea/feed" xmlUrl="http://www.radiozamaneh.com/category/idea/feed" subscribe="true" />
+      <outline category="en_US" text="Life" htmlUrl="http://www.radiozamaneh.com/category/living/feed" xmlUrl="http://www.radiozamaneh.com/category/living/feed" subscribe="true" />
+      <outline category="en_US" text="Dossiers" htmlUrl="http://www.radiozamaneh.com/category/dossiers/feed" xmlUrl="http://www.radiozamaneh.com/category/dossiers/feed" subscribe="true" />
+      <outline category="en_US" text="Books" htmlUrl="http://www.radiozamaneh.com/category/rzbook/feed" xmlUrl="http://www.radiozamaneh.com/category/rzbook/feed" subscribe="true" />
+      <outline category="en_US" text="Audio feed" htmlUrl="http://feeds.soundcloud.com/users/soundcloud:users:12366080/sounds.rss" xmlUrl="http://feeds.soundcloud.com/users/soundcloud:users:12366080/sounds.rss" subscribe="true" />
+      <outline category="en_US" text="Video feed" htmlUrl="http://www.youtube.com/feeds/videos.xml?playlist_id=UU4IPXv7mHV08eSmqg8RmwVA" xmlUrl="http://www.youtube.com/feeds/videos.xml?playlist_id=UU4IPXv7mHV08eSmqg8RmwVA" subscribe="true" />
+  </body>
+</opml> 

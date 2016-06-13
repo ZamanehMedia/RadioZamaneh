@@ -40,23 +40,17 @@
         android:layout_below="@id/tvTagResults"
         layout="@layout/story_list_header" />
 
-    <info.guardianproject.securereaderinterface.widgets.SyncableListView
-        android:id="@+id/lvStories"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/tvTagResults"
-        android:divider="@null"
-        android:listSelector="@android:color/transparent"
-        android:scrollbars="vertical" >
-
-    </info.guardianproject.securereaderinterface.widgets.SyncableListView>
-
-    <info.guardianproject.securereaderinterface.widgets.AppearingFrameLayout
+        android:orientation="vertical"
+        >
+        <info.guardianproject.securereaderinterface.widgets.AppearingRelativeLayout
         android:id="@+id/frameLoading"
         android:layout_width="match_parent"
-        android:layout_height="58dp"
+        android:layout_height="100dp"
         android:layout_below="@id/tvTagResults"
-        android:background="@drawable/light_grey_with_bottom_shadow"
         android:clickable="false"
         android:focusable="false"
         android:focusableInTouchMode="false" >
@@ -66,13 +60,35 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_gravity="center"
-            android:layout_marginBottom="2dp"
             android:clickable="false"
             android:focusable="false"
             android:focusableInTouchMode="false"
-            android:src="@drawable/ic_context_refresh" />
+            android:src="@drawable/ic_context_refresh"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="10dp"
+            android:tint="@color/rz_grey_dark" />
 
-    </info.guardianproject.securereaderinterface.widgets.AppearingFrameLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:id="@+id/textView"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/ivLoading"
+            android:layout_margin="10dp"
+            android:text="@string/pulldown_to_sync_syncing"
+            android:textColor="@color/rz_grey_dark" />
+
+    </info.guardianproject.securereaderinterface.widgets.AppearingRelativeLayout>
+    <info.guardianproject.securereaderinterface.widgets.SyncableListView
+            android:id="@+id/lvStories"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@null"
+            android:listSelector="@android:color/transparent"
+            android:scrollbars="vertical" >
+        </info.guardianproject.securereaderinterface.widgets.SyncableListView>
+    </LinearLayout>
 
     <info.guardianproject.securereaderinterface.widgets.AppearingRelativeLayout
         android:id="@+id/frameError"
@@ -82,7 +98,8 @@
         android:background="@drawable/light_grey_without_bottom_shadow"
         android:clickable="false"
         android:focusable="false"
-        android:focusableInTouchMode="false" >
+        android:focusableInTouchMode="false"
+        android:visibility="gone">
 
         <ImageButton
             android:id="@+id/ivErrorClose"

@@ -11,6 +11,8 @@ import info.guardianproject.securereaderinterface.widgets.CheckableImageView;
 import info.guardianproject.securereaderinterface.widgets.NestedViewPager;
 import info.guardianproject.securereaderinterface.widgets.compat.Spinner;
 import info.guardianproject.securereaderinterface.R;
+
+import android.graphics.Color;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import java.math.BigInteger;
@@ -95,10 +97,28 @@ public class FullScreenStoryItemView extends FrameLayout
 
 	private void initialize()
 	{
+		setBackgroundResource(R.drawable.background_detail);
+		//setBackgroundColor(Color.TRANSPARENT);
+
 		mContentPager = (NestedViewPager) findViewById(R.id.horizontalPagerContent);
 		mContentPagerAdapter = new ContentPagerAdapter();
 		mContentPager.setAdapter(mContentPagerAdapter);
-		
+		mContentPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+			@Override
+			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+			}
+
+			@Override
+			public void onPageSelected(int position) {
+				StoryItemView view = mContentPagerAdapter.getCurrentView();
+				view.pauseMediaPlayback();
+			}
+
+			@Override
+			public void onPageScrollStateChanged(int state) {
+			}
+		});
+
 		View toolbar = findViewById(R.id.storyToolbar);
 
 		// Read story
@@ -182,6 +202,7 @@ public class FullScreenStoryItemView extends FrameLayout
 				}
 			}
 		});
+		mBtnFavorite.setVisibility(View.GONE);
 
 		// Share
 		//
@@ -257,6 +278,7 @@ public class FullScreenStoryItemView extends FrameLayout
 			{
 			}
 		});
+		spinnerShare.setVisibility(View.GONE);
 
 		// Default to show story content
 		showContent();
@@ -378,7 +400,16 @@ public class FullScreenStoryItemView extends FrameLayout
 		if (storyItemView != null)
 			storyItemView.resetToStoredPositions(mFinalViewPositions, ExpandingFrameLayout.DEFAULT_COLLAPSE_DURATION);
 	}
-	
+
+	public void updateTextSize() {
+		for (int iChild = 0; iChild < mContentPager.getChildCount(); iChild++)
+		{
+			StoryItemView storyItemView = (StoryItemView) mContentPager.getChildAt(iChild).getTag();
+			if (storyItemView != null)
+				storyItemView.updateTextSize();
+		}
+	}
+
 	private class ContentPagerAdapter extends PagerAdapter
 	{
 		private StoryItemView mLeftView;

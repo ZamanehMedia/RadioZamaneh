@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="32px" height="41px" viewBox="0 0 32 41" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.6.1 (26313) - http://www.bohemiancoding.com/sketch -->
+    <title>Shape</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Landing" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="land_menu" transform="translate(-169.000000, -320.000000)" fill="#FFFFFF">
+            <g id="Group-2" transform="translate(51.000000, 294.000000)">
+                <path d="M118,26 L118,67 L150,46.5 L118,26 Z" id="Shape"></path>
+            </g>
+        </g>
+    </g>
+</svg>

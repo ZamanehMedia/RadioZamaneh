@@ -63,7 +63,7 @@ public class StoryListView extends RelativeLayout implements OnTagClickedListene
 
 	private StoryListListener mListener;
 	private boolean mIsLoading;
-	private AppearingFrameLayout mFrameLoading;
+	private AppearingRelativeLayout mFrameLoading;
 	private AppearingRelativeLayout mFrameError;
 	private View mIvLoading;
 	
@@ -93,7 +93,7 @@ public class StoryListView extends RelativeLayout implements OnTagClickedListene
 		mTvTagResults = (TextView) rootView.findViewById(R.id.tvTagResults);
 		mBtnCloseTagSearch = rootView.findViewById(R.id.btnCloseTagSearch);
 		mTvTagResults.setVisibility(View.GONE);
-		mFrameLoading = (AppearingFrameLayout) rootView.findViewById(R.id.frameLoading);
+		mFrameLoading = (AppearingRelativeLayout) rootView.findViewById(R.id.frameLoading);
 		mFrameError = (AppearingRelativeLayout) rootView.findViewById(R.id.frameError);
 		mFrameError.findViewById(R.id.ivErrorClose).setOnClickListener(new OnClickListener()
 		{

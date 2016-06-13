@@ -21,6 +21,8 @@ import info.guardianproject.securereaderinterface.R;
 
 import com.tinymission.rss.Item;
 
+import java.util.ArrayList;
+
 public class StoryItemPageView extends RelativeLayout 
 {
 	public interface StoryItemPageViewListener
@@ -73,7 +75,7 @@ public class StoryItemPageView extends RelativeLayout
 	private void init(AttributeSet attrs)
 	{
 		mCurrentViewType = null;
-		setBackgroundResource(R.drawable.story_item_background_selector);
+		//setBackgroundResource(R.drawable.story_item_background_selector);
 //		if (attrs != null && !this.isInEditMode())
 //		{
 //			TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.StoryItemPageView);
@@ -101,10 +103,10 @@ public class StoryItemPageView extends RelativeLayout
 	
 	protected int getViewResourceByType(ViewType type)
 	{
-		if (type == ViewType.NO_PHOTO)
-			return R.layout.story_item_page_merge_no_photo;
-		else if (type == ViewType.PORTRAIT_PHOTO)
-			return R.layout.story_item_page_merge_portrait_photo;
+		//if (type == ViewType.NO_PHOTO)
+		//	return R.layout.story_item_page_merge_no_photo;
+		//else if (type == ViewType.PORTRAIT_PHOTO)
+		//	return R.layout.story_item_page_merge_portrait_photo;
 		return R.layout.story_item_page_merge_landscape_photo;
 	}
 
@@ -234,6 +236,11 @@ public class StoryItemPageView extends RelativeLayout
 			mMediaViewCollection.load(false, false);
 			if (mMediaPager != null && mMediaViewCollection.getCountLoaded() > 0)
 				mMediaPager.setAdapter(new StoryItemMediaContentPagerAdapter(getContext(), mMediaViewCollection.getLoadedViews(), false));
+			else if (mMediaPager != null && mMediaViewCollection.getThumbnailView() != null) {
+				ArrayList<MediaContentPreviewView> views = new ArrayList<MediaContentPreviewView>();
+				views.add(mMediaViewCollection.getThumbnailView());
+				mMediaPager.setAdapter(new StoryItemMediaContentPagerAdapter(getContext(), views, false));
+			}
 		}
 	}
 	

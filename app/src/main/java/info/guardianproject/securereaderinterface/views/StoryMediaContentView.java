@@ -2,6 +2,8 @@ package info.guardianproject.securereaderinterface.views;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.provider.MediaStore;
+import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -108,7 +110,10 @@ public class StoryMediaContentView extends FrameLayout implements View.OnClickLi
 		}
 		else if (!mMediaViewCollection.containsLoadedMedia())
 		{
-			if (mShowDLButtonForBitWise)
+			if (mMediaViewCollection.getThumbnailView() != null) {
+				createThumbnailView();
+			}
+			else if (mShowDLButtonForBitWise)
 			{
 				setWrapContent(true);
 				if (mMediaViewCollection.isLoadingMedia())
@@ -192,7 +197,7 @@ public class StoryMediaContentView extends FrameLayout implements View.OnClickLi
 		View view = (View) contentView;
 		if (view.getParent() != null)
 			((ViewGroup) view.getParent()).removeView(view);
-		if (mAllowFullScreenMediaViewing)
+		if (mAllowFullScreenMediaViewing && !(contentView instanceof PlayableMediaContentPreviewView))
 		{
 			view.setOnClickListener(new OnMediaItemClickedListener(contentView.getMediaContent()));
 		}
@@ -201,6 +206,17 @@ public class StoryMediaContentView extends FrameLayout implements View.OnClickLi
 			view.setOnClickListener(null);
 			view.setClickable(false);
 		}
+		this.addView(view);
+	}
+
+	private void createThumbnailView()
+	{
+		MediaContentPreviewView contentView = mMediaViewCollection.getThumbnailView();
+		View view = (View) contentView;
+		if (view.getParent() != null)
+			((ViewGroup) view.getParent()).removeView(view);
+		view.setOnClickListener(null);
+		view.setClickable(false);
 		this.addView(view);
 	}
 

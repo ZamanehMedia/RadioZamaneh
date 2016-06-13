@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Radio Zamaneh</string>
+    <string name="app_description">Radio Zamaneh is a mobile RSS news reader with enhanced security features, offline reading and sharing capability.</string>
+    <string name="title_activity_login">Sign in</string>
+    <string name="title_activity_logout">Logout</string>
+    <string name="story_list_hint_no_shared_text1">The stories shared with you using Radio Zamaneh Nearby are listed here.</string>
+    <string name="help_title">About Radio Zamaneh</string>
+    <string name="help_wipe_content">Tap the panic button to delete your personal data within Radio Zamaneh. You can set the panic action to delete the entire app in your preferences.</string>
+    <string name="help_share_content">Share stories, feeds and the entire app using the Radio Zamaneh Secure Share. It\'s safe, easy and only requires a friend nearby with Bluetooth. App sharing requires a WiFi network or hotspot.</string>
+    <string name="help_data_content">Tips to reduce your data consumption:\n\n1. Sync only the feeds that matter to you most. Radio Zamaneh allows you to sync individual feeds.\n\n2. Choose Bit Wise syncing mode in your preferences. This syncs only text, with the ability to load photos on a story by story basis.\n\n3. Expire your articles in a timely manner. Choose your time frame in your preferences.</string>
+    <string name="about_zamaneh_title">About Radio Zamaneh</string>
+    <string name="about_zamaneh_content">Since 2007, Radio Zamaneh has focused particularly on increasing public awareness on democracy and human rights in Iran. We strive for an informed, educated and empowered civil society that can act as a catalyst for change and reform and put an end to increasing violations of basic human rights in Iran.</string>
+    <string name="help_terms_content">Software licenses and more information available online at: https://guardianproject.info/apps/</string>
+    <string name="menu_help">About Radio Zamaneh</string>
+    <string name="menu_font_size_increase">Make text larger</string>
+    <string name="menu_font_size_decrease">Make text smaller</string>
+    <string name="post_sign_in_info">Radio Zamaneh provides a feed of noteworthy news to its community. Every post created with Radio Zamaneh will undergo a curation process before it is shared in the official Radio Zamaneh news feed. Please see the Terms &amp; Conditions ("About Radio Zamaneh" then "Terms &amp; Software Licenses) to understand the rights you grant when you share information with Radio Zamaneh.</string>
+    <string name="httpd_app_sender_instructions">To locally share the Radio Zamaneh app or the apps supported by it (Orbot and ChatSecure), please take the following steps:</string>
+    <string name="bluetooth_send_info">Your friend must have the Radio Zamaneh app open to the \'Receive a Share\' screen from the side menu.</string>
+    <string name="bluetooth_receive_title">Receive a story or feed from a friend using Radio Zamaneh Nearby.</string>
+    <string name="create_account_title">Create your Radio Zamaneh Nickname</string>
+    <string name="story_list_hint_tor_title">Welcome to your Radio Zamaneh news feed.</string>
+    <string name="radio_play">Play Radio</string>
+    <string name="radio_loading">Loading...</string>
+    <string name="radio_stop">Stop Radio</string>
+    <string name="media_status_error">Error retrieving media</string>
+    <string name="media_status_created">Requesting media</string>
+    <string name="media_status_queued">Requesting media</string>
+    <string name="media_status_loading">Retrieving media</string>
+    <string name="media_status_loaded">Media ready</string>
+    <string name="media_status_cancelled">Request cancelled</string>
+    <string name="media_status_minutes">%d minutes</string>
+    <string name="pulldown_to_sync_no_net">Connect to the Internet to sync your news</string>
+    <string name="pulldown_to_sync">Pull down to sync your news</string>
+    <string name="pulldown_to_sync_syncing">Syncing your news...</string>
+</resources>

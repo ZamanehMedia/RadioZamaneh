@@ -14,18 +14,23 @@ import info.guardianproject.securereaderinterface.views.StoryListView;
 import info.guardianproject.securereaderinterface.views.StoryListHintTorView.OnButtonClickedListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.PopupWindowCompat;
 import android.text.TextUtils;
@@ -50,6 +55,9 @@ import android.widget.TextView.OnEditorActionListener;
 import com.tinymission.rss.Feed;
 import com.tinymission.rss.Item;
 
+import net.hockeyapp.android.CrashManager;
+import net.hockeyapp.android.UpdateManager;
+
 // HockeyApp SDK
 //import net.hockeyapp.android.CrashManager;
 //import net.hockeyapp.android.UpdateManager;
@@ -64,7 +72,7 @@ public class MainActivity extends ItemExpandActivity
 	public static final String LOGTAG = "MainActivity";
 	
 	// HockeyApp SDK
-	//public static String APP_ID = "3fa04d8b0a135d7f3bf58026cb125866";
+	public static String APP_ID = "dc2380a1235d44fcbe82f437955f1e65";
 
 	private boolean mIsInitialized;
 	private long mShowItemId;
@@ -80,6 +88,8 @@ public class MainActivity extends ItemExpandActivity
 	boolean mShowTagMenuItem;
 	MenuItem mMenuItemShare;
 	MenuItem mMenuItemFeed;
+	MenuItem mMenuItemFontSizeIncrease;
+	MenuItem mMenuItemFontSizeDecrease;
 
 	ActionProviderShare mShareActionProvider;
 
@@ -103,20 +113,6 @@ public class MainActivity extends ItemExpandActivity
 		mStoryListView.setListener(this);
 		
 		socialReader = ((App) getApplicationContext()).socialReader;
-		socialReader.setSyncServiceListener(new SyncService.SyncServiceListener()
-		{
-			@Override
-			public void syncEvent(SyncService.SyncTask syncTask)
-			{
-				if (LOGGING)
-					Log.v(LOGTAG, "Got a syncEvent");
-				
-				if (syncTask.type == SyncService.SyncTask.TYPE_FEED && syncTask.status == SyncService.SyncTask.FINISHED)
-				{
-					refreshListIfCurrent(syncTask.feed);
-				}
-			}
-		});
 
 		// Saved what we were looking at?
 		if (savedInstanceState != null && savedInstanceState.containsKey("FeedFilterType"))
@@ -138,6 +134,8 @@ public class MainActivity extends ItemExpandActivity
 	public void onResume()
 	{
 		super.onResume();
+
+		LocalBroadcastManager.getInstance(this).registerReceiver(mSyncReceiver, new IntentFilter(App.SYNC_STATUS_BROADCAST_ACTION));
 
 		// If we are in the process of displaying the lock screen isFinishing is
 		// actually
@@ -208,21 +206,30 @@ public class MainActivity extends ItemExpandActivity
 
 		// Resume sync if we are back from Orbot
 		updateTorView();
-		
+
+		if (getCurrentFeed() != null) {
+			updateCurrentFeedStatus(getCurrentFeed().getStatus());
+		}
 		// HockeyApp SDK
 		//checkForCrashes();
 	}
-	
+
+	@Override
+	protected void onPause() {
+		LocalBroadcastManager.getInstance(this).unregisterReceiver(mSyncReceiver);
+		super.onPause();
+	}
+
 	// HockeyApp SDK
-	/*private void checkForCrashes() {
+	private void checkForCrashes() {
 		CrashManager.register(this, APP_ID);
-	}*/	
+	}
 	
 	// HockeyApp SDK
-	/*private void checkForUpdates() {
+	private void checkForUpdates() {
 		//Remove this for store builds!
 		UpdateManager.register(this, APP_ID);
-	}*/	
+	}
 
 	@Override
 	protected void onAfterResumeAnimation()
@@ -302,9 +309,14 @@ public class MainActivity extends ItemExpandActivity
 	{
 		boolean ret = super.onCreateOptionsMenu(menu);
 
+		mMenuItemFontSizeIncrease = menu.findItem(R.id.menu_font_size_increase);
+		mMenuItemFontSizeDecrease = menu.findItem(R.id.menu_font_size_decrease);
+
 		// Find the tag menu item. Only to be shown when feed filter is set!
-		mMenuItemTag = menu.findItem(R.id.menu_tag);
-		mMenuItemTag.setVisible(mShowTagMenuItem);
+/*		mMenuItemTag = menu.findItem(R.id.menu_tag);
+		if (mMenuItemTag != null) {
+			mMenuItemTag.setVisible(mShowTagMenuItem);
+		}
 
 		// Locate MenuItem with ShareActionProvider
 		mMenuItemShare = menu.findItem(R.id.menu_share);
@@ -313,7 +325,7 @@ public class MainActivity extends ItemExpandActivity
 			mShareActionProvider = new ActionProviderShare(getSupportActionBar().getThemedContext());
 			mShareActionProvider.setFeed(getCurrentFeed());
 			MenuItemCompat.setActionProvider(mMenuItemShare, mShareActionProvider);
-		}
+		}*/
 		// Locate MenuItem with ShareActionProvider
 		// mMenuItemFeed = menu.findItem(R.id.menu_feed);
 		// if (mMenuItemFeed != null)
@@ -334,6 +346,19 @@ public class MainActivity extends ItemExpandActivity
 			View view = mToolbar.findViewById(item.getItemId());
 			showTagSearchPopup(view);
 			return true;
+		}
+		case R.id.menu_font_size_increase:
+			case R.id.menu_font_size_decrease:
+		{
+			int position = (item.getItemId() == R.id.menu_font_size_increase) ? 0 : 1;
+			int adjustment = App.getSettings().getContentFontSizeAdjustment();
+			if (position == 0 && adjustment < 8)
+				adjustment += 2;
+			else if (position == 1 && adjustment > -8)
+				adjustment -= 2;
+			App.getSettings().setContentFontSizeAdjustment(adjustment);
+			if (mFullView != null)
+				mFullView.updateTextSize();
 		}
 		}
 
@@ -449,6 +474,10 @@ public class MainActivity extends ItemExpandActivity
 			mMenuItemFeed.setVisible(!fullscreen);
 		if (mMenuItemShare != null)
 			mMenuItemShare.setVisible(!fullscreen);
+		if (mMenuItemFontSizeIncrease != null)
+			mMenuItemFontSizeIncrease.setVisible(fullscreen);
+		if (mMenuItemFontSizeDecrease != null)
+			mMenuItemFontSizeDecrease.setVisible(fullscreen);
 
 		if (!fullscreen)
 		{
@@ -486,8 +515,8 @@ public class MainActivity extends ItemExpandActivity
 	@SuppressLint({ "InlinedApi", "NewApi" })
 	private void updateList(boolean isUpdate)
 	{
-		if (!isUpdate)
-			setIsLoading(true);
+		//if (!isUpdate)
+		//	setIsLoading(true);
 		
 		if (mUpdateListTask == null || !mUpdateListTask.isForTypeAndFeed(getCurrentFeedFilterType(), getCurrentFeed()))
 		{
@@ -514,22 +543,7 @@ public class MainActivity extends ItemExpandActivity
 	{
 		updateList(true);
 	}
-	
-	private void refreshListIfCurrent(Feed feed)
-	{
-		if (getCurrentFeedFilterType() == FeedFilterType.ALL_FEEDS)
-		{
-			refreshList();
-		}
-		else if (getCurrentFeedFilterType() == FeedFilterType.SINGLE_FEED && 
-				getCurrentFeed() != null && getCurrentFeed().getDatabaseId() == feed.getDatabaseId())
-		{
-			//TODO - this seems a little ugly
-			App.getInstance().updateCurrentFeed(feed);
-			refreshList();
-		}
-	}
-	
+
 	private void checkShowStoryFullScreen(ArrayList<Item> items)
 	{
 		if (mShowItemId != 0)
@@ -602,9 +616,9 @@ public class MainActivity extends ItemExpandActivity
 		@Override
 		public void feedFetched(Feed _feed)
 		{
-			if (LOGGING) 
-				Log.v(LOGTAG, "feedFetched Callback");
-			refreshListIfCurrent(_feed);
+		if (LOGGING)
+			Log.v(LOGTAG, "feedFetched Callback");
+		refreshList();
 		}
 	};
 	private StoryListHintTorView mTorView;
@@ -790,8 +804,9 @@ public class MainActivity extends ItemExpandActivity
 
 				int headerViewId = 0;
 				ArrayList<Item> items = result.get(0).getItems();
-				if (items == null || items.size() == 0)
-				{
+				Calendar cal = Calendar.getInstance();
+				cal.add(Calendar.DATE, -1);
+				if (items == null || items.size() == 0) {
 					headerViewId = R.layout.story_list_hint_tor;
 				}
 				updateStoryListItems(mContext, items, headerViewId, mIsUpdate);
@@ -960,11 +975,9 @@ public class MainActivity extends ItemExpandActivity
 			return null;
 
 		ArrayList<Item> items = new ArrayList<Item>(unsortedItems);
-		Collections.sort(items, new Comparator<Item>()
-		{
+		Collections.sort(items, new Comparator<Item>() {
 			@Override
-			public int compare(Item i1, Item i2)
-			{
+			public int compare(Item i1, Item i2) {
 				if (i1.equals(i2))
 					return 0;
 				else if (i1.getPublicationTime() == null && i2.getPublicationTime() == null)
@@ -977,5 +990,43 @@ public class MainActivity extends ItemExpandActivity
 			}
 		});
 		return items;
+	}
+
+	@Override
+	public void onStoryClicked(StoryListAdapter adapter, int index, View storyView)
+	{
+		Item item = (Item)adapter.getItem(index);
+//		if (item.getGuid().startsWith("yt:video:")) {
+//			Intent intent = new Intent(this, YouTubeViewerActivity.class);
+//			intent.putExtra(YouTubeViewerActivity.YOUTUBE_VIDEO_ID_KEY, item.getGuid().substring(9)); // Strip the "yt:video:" part to get video ID
+//			intent.putExtra(YouTubeViewerActivity.ACTIVITY_STYLE, YouTubeViewerActivity.STYLE_BLACK);
+//			startActivity(intent);
+//			return;
+//		}
+		super.onStoryClicked(adapter, index, storyView);
+	}
+
+	private BroadcastReceiver mSyncReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			int status = intent.getIntExtra("status", 0);
+			updateCurrentFeedStatus(status);
+		}
+	};
+
+	private void updateCurrentFeedStatus(int status) {
+		if (status == SyncService.SyncTask.FINISHED)
+			refreshList();
+
+		if (status == SyncService.SyncTask.CREATED || status == SyncService.SyncTask.QUEUED || status == SyncService.SyncTask.STARTED) {
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.DATE, -3);
+			if (getCurrentFeed() == null || getCurrentFeed().getNetworkPullDate() == null || getCurrentFeed().getNetworkPullDate().before(cal.getTime()))
+				setIsLoading(true);
+			else
+				setIsLoading(false);
+		}
+		else
+			setIsLoading(false);
 	}
 }
