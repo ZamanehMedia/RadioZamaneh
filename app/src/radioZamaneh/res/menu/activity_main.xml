@@ -2,6 +2,7 @@
     <!--<item android:id="@+id/menu_tag" android:title="@string/menu_tag" android:orderInCategory="101" android:icon="@drawable/ic_action_tag" app:showAsAction="always" android:enabled="true"/>-->
     <!--<item android:id="@+id/menu_share" android:title="@string/menu_share" android:orderInCategory="102" android:icon="@drawable/ic_action_share" app:showAsAction="always" android:enabled="true"/>-->
     <item android:id="@+id/menu_panic" android:title="@string/menu_panic" android:orderInCategory="104" app:showAsAction="always" android:icon="@drawable/ic_action_panic"/>
+    <item android:id="@+id/menu_read_more" android:title="@string/story_item_read_with_orweb" android:orderInCategory="400" app:showAsAction="always" android:icon="@drawable/ic_open_in_browser_black_24dp" />
     <item android:id="@+id/menu_font_size_increase" android:title="@string/menu_font_size_increase" android:orderInCategory="500" app:showAsAction="never" />
     <item android:id="@+id/menu_font_size_decrease" android:title="@string/menu_font_size_decrease" android:orderInCategory="501" app:showAsAction="never" />
 </menu>

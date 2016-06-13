@@ -4,6 +4,7 @@ package info.guardianproject.securereaderinterface;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Gravity;
@@ -17,7 +18,10 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+
+import info.guardianproject.securereader.SocialReader;
 import info.guardianproject.securereaderinterface.adapters.StoryListAdapter;
+import info.guardianproject.securereaderinterface.ui.UICallbacks;
 import info.guardianproject.securereaderinterface.uiutil.AnimationHelpers;
 import info.guardianproject.securereaderinterface.uiutil.UIHelpers;
 import info.guardianproject.securereaderinterface.views.ExpandingFrameLayout;
@@ -28,7 +32,7 @@ import info.guardianproject.securereaderinterface.R;
 
 import com.tinymission.rss.Item;
 
-public class ItemExpandActivity extends FragmentActivityWithMenu implements StoryListListener
+public class ItemExpandActivity extends FragmentActivityWithMenu implements StoryListListener, FullScreenStoryItemView.FullScreenStoryItemViewListener
 {
 	public static final String LOGTAG = "ItemExpandActivity";
 	public static final boolean LOGGING = false;
@@ -38,6 +42,7 @@ public class ItemExpandActivity extends FragmentActivityWithMenu implements Stor
 	private ListView mFullListStories;
 	private int mFullOpeningOffset;
 	private boolean mInFullScreenMode;
+	private MenuItem mMenuItemReadMore;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -180,6 +185,7 @@ public class ItemExpandActivity extends FragmentActivityWithMenu implements Stor
 				setCollapsedSizeToStoryViewSize(storyView);
 			}
 			this.prepareFullScreenView(mFullView);
+			mFullView.setListener(this);
 			mFullView.setStory(adapter, index,
 					getStoredPositions((ViewGroup) storyView));
 		}
@@ -306,14 +312,23 @@ public class ItemExpandActivity extends FragmentActivityWithMenu implements Stor
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item)
+	public boolean onCreateOptionsMenu(Menu menu)
 	{
-		switch (item.getItemId())
-		{
-		case android.R.id.home:
-			if (isInFullScreenMode())
-			{
-				exitFullScreenMode();
+		boolean ret = super.onCreateOptionsMenu(menu);
+		mMenuItemReadMore = menu.findItem(R.id.menu_read_more);
+		return ret;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				if (isInFullScreenMode()) {
+					exitFullScreenMode();
+					return true;
+				}
+			case R.id.menu_read_more: {
+				onReadMoreClicked();
 				return true;
 			}
 		}
@@ -389,5 +404,22 @@ public class ItemExpandActivity extends FragmentActivityWithMenu implements Stor
 		mFullListStories.setSelectionFromTop(mFullView.getCurrentStoryIndex(),
 				mFullOpeningOffset);
 		bWaitingForCallToScroll = false;
+	}
+
+	@Override
+	public void onCurrentItemChanged(Item item) {
+		if (mMenuItemReadMore != null) {
+			boolean isReadMoreEnabled = !TextUtils.isEmpty(item.getLink()) && App.getInstance().socialReader.isOnline() == SocialReader.ONLINE;
+			mMenuItemReadMore.setEnabled(isReadMoreEnabled);
+		}
+	}
+
+	private void onReadMoreClicked() {
+		if (mFullView != null && mFullView.getCurrentStory() != null && mFullView.getCurrentStory().getLink() != null) {
+			String url = mFullView.getCurrentStory().getLink();
+			Bundle params = new Bundle();
+			params.putString("url", url);
+			UICallbacks.handleCommand(this, R.integer.command_read_more, params);
+		}
 	}
 }

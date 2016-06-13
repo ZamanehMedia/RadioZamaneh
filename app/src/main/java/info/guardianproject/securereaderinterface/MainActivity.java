@@ -90,6 +90,7 @@ public class MainActivity extends ItemExpandActivity
 	MenuItem mMenuItemFeed;
 	MenuItem mMenuItemFontSizeIncrease;
 	MenuItem mMenuItemFontSizeDecrease;
+	MenuItem mMenuItemReadMore;
 
 	ActionProviderShare mShareActionProvider;
 
@@ -309,6 +310,7 @@ public class MainActivity extends ItemExpandActivity
 	{
 		boolean ret = super.onCreateOptionsMenu(menu);
 
+		mMenuItemReadMore = menu.findItem(R.id.menu_read_more);
 		mMenuItemFontSizeIncrease = menu.findItem(R.id.menu_font_size_increase);
 		mMenuItemFontSizeDecrease = menu.findItem(R.id.menu_font_size_decrease);
 
@@ -478,6 +480,8 @@ public class MainActivity extends ItemExpandActivity
 			mMenuItemFontSizeIncrease.setVisible(fullscreen);
 		if (mMenuItemFontSizeDecrease != null)
 			mMenuItemFontSizeDecrease.setVisible(fullscreen);
+		if (mMenuItemReadMore != null)
+			mMenuItemReadMore.setVisible(fullscreen);
 
 		if (!fullscreen)
 		{

@@ -41,6 +41,11 @@ import com.tinymission.rss.Item;
 
 public class FullScreenStoryItemView extends FrameLayout
 {
+	public interface FullScreenStoryItemViewListener {
+		void onCurrentItemChanged(Item item);
+	}
+	private FullScreenStoryItemViewListener mListener;
+
 	protected static final String LOGTAG = "FullScreenStoryItemView";
 	public static final boolean LOGGING = false;
 	
@@ -74,7 +79,9 @@ public class FullScreenStoryItemView extends FrameLayout
 		initialize();
 	}
 
-
+	public void setListener(FullScreenStoryItemViewListener listener) {
+		mListener = listener;
+	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event)
@@ -323,6 +330,9 @@ public class FullScreenStoryItemView extends FrameLayout
 			// R.string.share_via_secure_chat, R.drawable.ic_share_sharer);
 			mShareAdapter.addIntentResolvers(shareIntent);
 			DownloadsAdapter.viewed(current.getDatabaseId());
+		}
+		if (mListener != null) {
+			mListener.onCurrentItemChanged(current);
 		}
 	}
 

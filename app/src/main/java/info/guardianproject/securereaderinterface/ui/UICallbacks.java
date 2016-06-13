@@ -35,8 +35,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -202,196 +204,166 @@ public class UICallbacks
 		}
 	}
 
-	public static void handleCommand(Context context, int command, Bundle commandParameters)
-	{
+	public static void handleCommand(Context context, int command, Bundle commandParameters) {
 		getInstance().fireCallback("onCommand", command, commandParameters);
 
-		switch (command)
-		{
-		case R.integer.command_news_list:
-		{
-			Intent intent = new Intent(context, MainActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-			context.startActivity(intent);
-			break;
-		}
-
-		case R.integer.command_posts_list:
-		{
-			Intent intent = new Intent(context, PostActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-			if (commandParameters != null && commandParameters.containsKey("go_to_tab"))
-			{
-				intent.putExtra("go_to_tab", commandParameters.getInt("go_to_tab", -1));
+		switch (command) {
+			case R.integer.command_news_list: {
+				Intent intent = new Intent(context, MainActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+				context.startActivity(intent);
+				break;
 			}
-			context.startActivity(intent);
-			break;
-		}
 
-		case R.integer.command_post_add:
-		{
-			Intent intent = new Intent(context, AddPostActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-			context.startActivity(intent);
-			((Activity) context).overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
-			break;
-		}
-
-		case R.integer.command_feed_add:
-		{
-			Intent intent = new Intent(context, AddFeedActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-			context.startActivity(intent);
-			((Activity) context).overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
-			break;
-		}
-
-		case R.integer.command_settings:
-		{
-			Intent intent = new Intent(context, SettingsActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-			context.startActivity(intent);
-			break;
-		}
-
-		case R.integer.command_toggle_online:
-		{
-			if (App.getInstance().socialReader.isOnline() == SocialReader.NOT_ONLINE_NO_PROXY)
-				App.getInstance().socialReader.connectProxy((Activity) context);
-			// else
-			// Not sure this makes sense
-			// App.getInstance().socialReader.goOffline();
-
-			break;
-		}
-
-		case R.integer.command_view_media:
-		{	
-			if (LOGGING)
-				Log.v(LOGTAG, "command_view_media");
-			if (commandParameters != null && commandParameters.containsKey("media"))
-			{
-				MediaContent mediaContent = (MediaContent) commandParameters.getSerializable("media");
-				if (LOGGING)
-					Log.v(LOGTAG, "MediaContent " + mediaContent.getType());
-
-				if (mediaContent != null && mediaContent.getType().startsWith("application/vnd.android.package-archive"))
-				{
-					// This is an application package. View means
-					// "ask for installation"...
-					if (mediaContent.getDownloadedNonVFSFile() != null) {
-						Intent intent = new Intent(Intent.ACTION_VIEW);
-						intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-						intent.setDataAndType(Uri.fromFile(mediaContent.getDownloadedNonVFSFile()),mediaContent.getType());
-						context.startActivity(intent);
-					}
-				} 
-				else if (mediaContent != null && mediaContent.getType().startsWith("application/epub+zip"))
-				{
-					if (LOGGING)
-						Log.v(LOGTAG, "MediaContent is epub");
-
-					// This is an epub
-					if (mediaContent.getDownloadedNonVFSFile() != null) {
-						if (LOGGING)
-							Log.v(LOGTAG, "Not null");
-						
-						try {
-							File properlyNamed = new File(mediaContent.getDownloadedNonVFSFile().toString() + ".epub"); 
-							InputStream in = new FileInputStream(mediaContent.getDownloadedNonVFSFile());
-							OutputStream out = new FileOutputStream(properlyNamed);
-
-						    // Transfer bytes from in to out
-						    byte[] buf = new byte[1024];
-						    int len;
-						    while ((len = in.read(buf)) > 0) {
-						        out.write(buf, 0, len);
-						    }
-						    in.close();
-						    out.close();
-						    
-							Intent intent = new Intent(Intent.ACTION_VIEW);
-							intent.setDataAndType(Uri.fromFile(properlyNamed),mediaContent.getType());
-
-							PackageManager packageManager = context.getPackageManager();
-						    List list = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-						    if (list.size() > 0) {
-						    	if (LOGGING)
-									Log.v(LOGTAG, "Launching epub reader" + Uri.fromFile(properlyNamed).toString());
-						    	context.startActivity(intent);
-						    }
-						    else {
-						    	if (LOGGING)
-									Log.v("UICallbacks", "No application found" + Uri.fromFile(properlyNamed).toString());
-						    	
-						    	// Download epub reader?
-								int numShown = App.getSettings().downloadEpubReaderDialogShown();
-								if (numShown < 1)
-								{
-									App.getSettings().setDownloadEpubReaderDialogShown(numShown + 1);
-									intent = new Intent(context, DownloadEpubReaderActivity.class);
-									intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-									context.startActivity(intent);
-									((Activity) context).overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
-								}
-						    }
-						} catch (FileNotFoundException e) {
-						
-							e.printStackTrace();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}					    
-					    
-					}
-					else {
-						if (LOGGING)
-							Log.v(LOGTAG, "NULL");
-					}
+			case R.integer.command_posts_list: {
+				Intent intent = new Intent(context, PostActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+				if (commandParameters != null && commandParameters.containsKey("go_to_tab")) {
+					intent.putExtra("go_to_tab", commandParameters.getInt("go_to_tab", -1));
 				}
-				else
-				{
-					Intent intent = new Intent(context, ViewMediaActivity.class);
-					intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-					intent.putExtra("parameters", commandParameters);
-					context.startActivity(intent);
-				}
+				context.startActivity(intent);
+				break;
 			}
-			else
-			{
-				if (LOGGING)
-					Log.e(LOGTAG, "Invalid parameters to command command_view_media.");
-			}
-			break;
-		}
 
-		case R.integer.command_chat:
-		{
-			// If we don't have an account yet, we need to create that!
-			if (!PackageHelper.isChatSecureInstalled(context))
-			{
-				int numShown = App.getSettings().chatSecureDialogShown();
-				if (numShown < 2)
-				{
-					AlertDialog dialog = PackageHelper.showDownloadDialog(context, R.string.install_chat_secure_title, R.string.install_chat_secure_prompt,
-							android.R.string.ok, android.R.string.cancel, PackageHelper.URI_CHATSECURE_PLAY);
-					App.getSettings().setChatSecureDialogShown(numShown + 1);
-				}
-				else
-				{
-					// Stop prompting, just show a toast with info
-					Toast.makeText(context, R.string.install_chat_secure_toast, Toast.LENGTH_SHORT).show();
-				}
-			}
-			else if (App.getInstance().socialReporter.getAuthorName() == null)
-			{
-				Intent intent = new Intent(context, CreateAccountActivity.class);
+			case R.integer.command_post_add: {
+				Intent intent = new Intent(context, AddPostActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 				context.startActivity(intent);
 				((Activity) context).overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
+				break;
 			}
-			else
-			{
+
+			case R.integer.command_feed_add: {
+				Intent intent = new Intent(context, AddFeedActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+				context.startActivity(intent);
+				((Activity) context).overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
+				break;
+			}
+
+			case R.integer.command_settings: {
+				Intent intent = new Intent(context, SettingsActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+				context.startActivity(intent);
+				break;
+			}
+
+			case R.integer.command_toggle_online: {
+				if (App.getInstance().socialReader.isOnline() == SocialReader.NOT_ONLINE_NO_PROXY)
+					App.getInstance().socialReader.connectProxy((Activity) context);
+				// else
+				// Not sure this makes sense
+				// App.getInstance().socialReader.goOffline();
+
+				break;
+			}
+
+			case R.integer.command_view_media: {
+				if (LOGGING)
+					Log.v(LOGTAG, "command_view_media");
+				if (commandParameters != null && commandParameters.containsKey("media")) {
+					MediaContent mediaContent = (MediaContent) commandParameters.getSerializable("media");
+					if (LOGGING)
+						Log.v(LOGTAG, "MediaContent " + mediaContent.getType());
+
+					if (mediaContent != null && mediaContent.getType().startsWith("application/vnd.android.package-archive")) {
+						// This is an application package. View means
+						// "ask for installation"...
+						if (mediaContent.getDownloadedNonVFSFile() != null) {
+							Intent intent = new Intent(Intent.ACTION_VIEW);
+							intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+							intent.setDataAndType(Uri.fromFile(mediaContent.getDownloadedNonVFSFile()), mediaContent.getType());
+							context.startActivity(intent);
+						}
+					} else if (mediaContent != null && mediaContent.getType().startsWith("application/epub+zip")) {
+						if (LOGGING)
+							Log.v(LOGTAG, "MediaContent is epub");
+
+						// This is an epub
+						if (mediaContent.getDownloadedNonVFSFile() != null) {
+							if (LOGGING)
+								Log.v(LOGTAG, "Not null");
+
+							try {
+								File properlyNamed = new File(mediaContent.getDownloadedNonVFSFile().toString() + ".epub");
+								InputStream in = new FileInputStream(mediaContent.getDownloadedNonVFSFile());
+								OutputStream out = new FileOutputStream(properlyNamed);
+
+								// Transfer bytes from in to out
+								byte[] buf = new byte[1024];
+								int len;
+								while ((len = in.read(buf)) > 0) {
+									out.write(buf, 0, len);
+								}
+								in.close();
+								out.close();
+
+								Intent intent = new Intent(Intent.ACTION_VIEW);
+								intent.setDataAndType(Uri.fromFile(properlyNamed), mediaContent.getType());
+
+								PackageManager packageManager = context.getPackageManager();
+								List list = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+								if (list.size() > 0) {
+									if (LOGGING)
+										Log.v(LOGTAG, "Launching epub reader" + Uri.fromFile(properlyNamed).toString());
+									context.startActivity(intent);
+								} else {
+									if (LOGGING)
+										Log.v("UICallbacks", "No application found" + Uri.fromFile(properlyNamed).toString());
+
+									// Download epub reader?
+									int numShown = App.getSettings().downloadEpubReaderDialogShown();
+									if (numShown < 1) {
+										App.getSettings().setDownloadEpubReaderDialogShown(numShown + 1);
+										intent = new Intent(context, DownloadEpubReaderActivity.class);
+										intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+										context.startActivity(intent);
+										((Activity) context).overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
+									}
+								}
+							} catch (FileNotFoundException e) {
+
+								e.printStackTrace();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+
+						} else {
+							if (LOGGING)
+								Log.v(LOGTAG, "NULL");
+						}
+					} else {
+						Intent intent = new Intent(context, ViewMediaActivity.class);
+						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+						intent.putExtra("parameters", commandParameters);
+						context.startActivity(intent);
+					}
+				} else {
+					if (LOGGING)
+						Log.e(LOGTAG, "Invalid parameters to command command_view_media.");
+				}
+				break;
+			}
+
+			case R.integer.command_chat: {
+				// If we don't have an account yet, we need to create that!
+				if (!PackageHelper.isChatSecureInstalled(context)) {
+					int numShown = App.getSettings().chatSecureDialogShown();
+					if (numShown < 2) {
+						AlertDialog dialog = PackageHelper.showDownloadDialog(context, R.string.install_chat_secure_title, R.string.install_chat_secure_prompt,
+								android.R.string.ok, android.R.string.cancel, PackageHelper.URI_CHATSECURE_PLAY);
+						App.getSettings().setChatSecureDialogShown(numShown + 1);
+					} else {
+						// Stop prompting, just show a toast with info
+						Toast.makeText(context, R.string.install_chat_secure_toast, Toast.LENGTH_SHORT).show();
+					}
+				} else if (App.getInstance().socialReporter.getAuthorName() == null) {
+					Intent intent = new Intent(context, CreateAccountActivity.class);
+					intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+					context.startActivity(intent);
+					((Activity) context).overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
+				} else {
 				/*
 				if (!App.getSettings().chatUsernamePasswordSet() 
 						&& App.getInstance().socialReader.ssettings.getChatSecureUsername() != null
@@ -417,12 +389,12 @@ public class UICallbacks
 				*/
 					// Register Social Reporter username/password
 				/*} else {*/
-				
+
 					if (LOGGING)
 						Log.v(LOGTAG, "Start the chat application now!");
-					
+
 					String roomName = context.getString(R.string.chatroom_name);
-					
+
 					if (commandParameters != null && commandParameters.containsKey("room_name"))
 						roomName = commandParameters.getString("room_name");
 					if (roomName == null)
@@ -430,64 +402,95 @@ public class UICallbacks
 					Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse("immu://" + App.getInstance().socialReporter.getAuthorName()
 							+ "@conference.dukgo.com/" + roomName));
 					intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-					if (!PackageHelper.canIntentBeHandled(context, intent))
-					{
+					if (!PackageHelper.canIntentBeHandled(context, intent)) {
 						// Old version of ChatSecure that don't support intent API.
 						// Need to upgrade!
 						AlertDialog dialog = PackageHelper.showDownloadDialog(context, R.string.install_chat_secure_title,
 								R.string.install_chat_secure_prompt_upgrade, android.R.string.ok, android.R.string.cancel, PackageHelper.URI_CHATSECURE_PLAY);
-					}
-					else
-					{
-							context.startActivity(intent);
+					} else {
+						context.startActivity(intent);
 					}
 				/*}*/
+				}
+				break;
 			}
-			break;
-		}
 
-		case R.integer.command_downloads:
-		{
-			Intent intent = new Intent(context, DownloadsActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-			context.startActivity(intent);
-			((Activity) context).overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
-			break;
-		}
+			case R.integer.command_downloads: {
+				Intent intent = new Intent(context, DownloadsActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+				context.startActivity(intent);
+				((Activity) context).overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
+				break;
+			}
 
-		case R.integer.command_help:
-		{
-			Intent intent = new Intent(context, HelpActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-			context.startActivity(intent);
-			((Activity) context).overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
-			break;
-		}
+			case R.integer.command_help: {
+				Intent intent = new Intent(context, HelpActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+				context.startActivity(intent);
+				((Activity) context).overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
+				break;
+			}
 
-		case R.integer.command_receiveshare:
-		{
-			if (context instanceof FragmentActivity)
-			{
+			case R.integer.command_receiveshare: {
+				if (context instanceof FragmentActivity) {
+					if (LOGGING)
+						Log.v(LOGTAG, "Calling receive share fragment dialog");
+					FragmentManager fm = ((FragmentActivity) context).getSupportFragmentManager();
+					SecureBluetoothReceiverFragment dialogReceiveShare = new SecureBluetoothReceiverFragment();
+					dialogReceiveShare.show(fm, App.FRAGMENT_TAG_RECEIVE_SHARE);
+				}
+				break;
+			}
+
+			case R.integer.command_shareapp: {
 				if (LOGGING)
-					Log.v(LOGTAG, "Calling receive share fragment dialog");
-				FragmentManager fm = ((FragmentActivity)context).getSupportFragmentManager();
-				SecureBluetoothReceiverFragment dialogReceiveShare = new SecureBluetoothReceiverFragment(); 
-				dialogReceiveShare.show(fm, App.FRAGMENT_TAG_RECEIVE_SHARE);
+					Log.v(LOGTAG, "Calling HTTPDAppSender");
+				Intent intent = new Intent(context, HTTPDAppSender.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+				context.startActivity(intent);
+				((Activity) context).overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
+				break;
 			}
-			break;
-		}
 
-		case R.integer.command_shareapp:
-		{
-			if (LOGGING)
-				Log.v(LOGTAG, "Calling HTTPDAppSender");
-			Intent intent = new Intent(context, HTTPDAppSender.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-			context.startActivity(intent);
-			((Activity) context).overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
-			break;
-		}
+			case R.integer.command_read_more: {
+				if (LOGGING)
+					Log.v(LOGTAG, "Read More");
+				if (commandParameters != null && commandParameters.containsKey("url")) {
+					try {
+						Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(commandParameters.getString("url")));
+						String thisPackageName = App.getInstance().getPackageName();
 
+						// Instead of using built in functionality, we create our own chooser so that we
+						// can remove ourselves from the list (opening the story in this app would actually
+						// take us to the AddFeed page, so it does not make sense to have it as an option)
+						List<Intent> targetedShareIntents = new ArrayList<Intent>();
+						List<ResolveInfo> resInfo = context.getPackageManager().queryIntentActivities(intent, 0);
+						if (resInfo != null && resInfo.size() > 0) {
+							for (ResolveInfo resolveInfo : resInfo) {
+								String packageName = resolveInfo.activityInfo.packageName;
+
+								Intent targetedShareIntent = (Intent) intent.clone();
+								targetedShareIntent.setPackage(packageName);
+								if (!packageName.equals(thisPackageName)) // Remove
+								// ourselves
+								{
+									targetedShareIntents.add(targetedShareIntent);
+								}
+							}
+
+							if (targetedShareIntents.size() > 0) {
+								Intent chooserIntent = Intent.createChooser(targetedShareIntents.remove(0), null);
+								chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetedShareIntents.toArray(new Parcelable[]{}));
+								context.startActivity(chooserIntent);
+							}
+						}
+					} catch (Exception e) {
+						if (LOGGING)
+							Log.d(LOGTAG, "Error trying to open read more link: " + commandParameters.getString("url"));
+					}
+				}
+				break;
+			}
 		}
 	}
 }
