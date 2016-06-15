@@ -1,7 +1,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 	
     <!-- Font sizes for the different elements of an Item -->
-    <dimen name="itemTitleSize">21sp</dimen>
+    <dimen name="itemTitleSize">18sp</dimen>
     <dimen name="itemTimeSize">14sp</dimen>
     <dimen name="itemSourceSize">14sp</dimen>
     <dimen name="itemAuthorSize">13sp</dimen>

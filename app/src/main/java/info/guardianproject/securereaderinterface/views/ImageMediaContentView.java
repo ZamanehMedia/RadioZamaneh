@@ -272,7 +272,7 @@ public class ImageMediaContentView extends FrameLayout implements MediaDownloade
 	@Override
 	public void mediaDownloaded(final File mediaFile)
 	{
-		realBmp = UIHelpers.scaleToMaxGLSize(getContext(), mediaFile, 0, 0);
+		realBmp = UIHelpers.scaleToMaxGLSize(getContext(), mediaFile, mMediaContent.getWidth(), mMediaContent.getHeight(), 0, 0);
 		rescaleImage();
 		if (mOrientationListener != null)
 		{

@@ -97,8 +97,7 @@ public class ImageMediaContentPreviewView extends ImageView implements MediaCont
 				{
 					int w = getWidth();
 					int h = getHeight();
-					Bitmap bmp = UIHelpers.scaleToMaxGLSize(getContext(), mMediaFile, w, h);
-
+					Bitmap bmp = UIHelpers.scaleToMaxGLSize(getContext(), mMediaFile, mMediaContent.getWidth(), mMediaContent.getHeight(), w, h);
 					Runnable doSetImageRunnable = new Runnable()
 					{
 						private Bitmap mBitmap;

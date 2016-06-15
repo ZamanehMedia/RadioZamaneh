@@ -48,6 +48,7 @@
         <attr name="font" format="string" />
         <attr name="linked_text_view" format="reference" />
         <attr name="fade_last_line" format="boolean" defaultValue="false" />
+        <attr name="no_transform" format="boolean" defaultValue="false" />
         <attr name="android:maxLines" />
         <attr name="android:lineSpacingExtra" />
         <attr name="android:lineSpacingMultiplier" />

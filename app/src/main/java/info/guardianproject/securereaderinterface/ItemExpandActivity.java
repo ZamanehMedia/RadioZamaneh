@@ -327,6 +327,7 @@ public class ItemExpandActivity extends FragmentActivityWithMenu implements Stor
 					exitFullScreenMode();
 					return true;
 				}
+				break;
 			case R.id.menu_read_more: {
 				onReadMoreClicked();
 				return true;
@@ -367,43 +368,27 @@ public class ItemExpandActivity extends FragmentActivityWithMenu implements Stor
 		});
 	}
 
-	boolean bWaitingForCallToScroll = false;
-	
 	private void scrollToCurrentItem() {
-		bWaitingForCallToScroll = true;
-		if (mFullStoryView != null) {
-			mFullListStories.setOnScrollListener(new OnScrollListener() {
-				@Override
-				public void onScrollStateChanged(AbsListView view,
-						int scrollState) {
-				}
-
-				@Override
-				public void onScroll(AbsListView view, int firstVisibleItem,
-						int visibleItemCount, int totalItemCount) {
-					if (!bWaitingForCallToScroll)
-						mFullListStories.setOnScrollListener(null);
-
-					Item currentItem = mFullView.getCurrentStory();
-					for (int i = firstVisibleItem; i < totalItemCount
-							&& i < (firstVisibleItem + visibleItemCount); i++) {
-						Item item = (Item) mFullListStories
-								.getItemAtPosition(i);
-						if (item.getDatabaseId() == currentItem.getDatabaseId()) {
-							View storyView = mFullListStories.getChildAt(i
-									- mFullListStories
-											.getFirstVisiblePosition());
-							if (storyView != null)
-								setCollapsedSizeToStoryViewSize(storyView);
-							break;
-						}
-					}
-				}
-			});
-		}
 		mFullListStories.setSelectionFromTop(mFullView.getCurrentStoryIndex(),
 				mFullOpeningOffset);
-		bWaitingForCallToScroll = false;
+		mFullListStories.post(new Runnable() {
+			@Override
+			public void run() {
+				Item currentItem = mFullView.getCurrentStory();
+				for (int i = mFullListStories.getFirstVisiblePosition(); i <= mFullListStories.getLastVisiblePosition(); i++) {
+					Item item = (Item) mFullListStories
+							.getItemAtPosition(i);
+					if (item.getDatabaseId() == currentItem.getDatabaseId()) {
+						View storyView = mFullListStories.getChildAt(i
+								- mFullListStories
+								.getFirstVisiblePosition());
+						if (storyView != null)
+							setCollapsedSizeToStoryViewSize(storyView);
+						break;
+					}
+				}
+			}
+		});
 	}
 
 	@Override

@@ -28,6 +28,8 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
 import android.os.Parcelable;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -62,6 +64,7 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 	private View mView;
 	private View mLayoutControls;
 	private TextView mMediaStatus;
+	private Thread mSetContentThread;
 
 	public StoryItemView(Item item)
 	{
@@ -228,18 +231,39 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 		{
 			mDefaultTextSize = tv.getTextSize();
 			tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, tv.getTextSize() + App.getSettings().getContentFontSizeAdjustment());
-			CharSequence content = story.getFormattedMainContent(new HTMLContentFormatter());
-			if (content instanceof Spannable) {
-				Spannable spannableContent = (Spannable) content;
-				for (HTMLContentFormatter.HTMLLinkSpan span : spannableContent.getSpans(0, spannableContent.length(), HTMLContentFormatter.HTMLLinkSpan.class)) {
-					span.setListener(new ReadMoreClickListener(span.getURL()));
-				}
-			}
 			tv.setMovementMethod(LinkMovementMethod.getInstance());
-			tv.setText(content);
+			tv.setFocusable(false);
+			tv.setFocusableInTouchMode(false);
 			tv.setPaintFlags(tv.getPaintFlags() | Paint.SUBPIXEL_TEXT_FLAG);
-			if (TextUtils.isEmpty(tv.getText()))
-				tv.setVisibility(View.GONE);
+			if (mSetContentThread != null)
+				mSetContentThread.interrupt();
+			mSetContentThread = new Thread(new Runnable() {
+
+				private TextView tv;
+				public Runnable init(TextView tv) {
+					this.tv = tv;
+					return this;
+				}
+
+				@Override
+				public void run() {
+					CharSequence cleanContent = mItem.getCleanMainContent();
+
+					// Trim white at beginning of text
+					if (!TextUtils.isEmpty(cleanContent)) {
+						int i = 0;
+						while (i < cleanContent.length() && cleanContent.charAt(i) <= 32) {
+							i++;
+						}
+						if (i != 0) {
+							cleanContent = cleanContent.subSequence(i, cleanContent.length());
+						}
+					}
+					mHandler.sendMessage(mHandler.obtainMessage(0, cleanContent));
+				}
+			}.init(tv));
+			tv.setText("");
+			mSetContentThread.start();
 		}
 
 		// Set source
@@ -323,7 +347,7 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 					// Content probably null for some reason.
 				}
 			}
-			else if (App.getSettings().readerSwipeDirection() == ReaderSwipeDirection.Ltr)
+			else if (App.getSettings().readerSwipeDirection() == ReaderSwipeDirection.Rtl)
 			{
 				bReverse = true;
 			}
@@ -481,5 +505,20 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 //					android.R.string.cancel, PackageHelper.URI_ORWEB_PLAY);
 //		}
 //	}
+	public void scrollToTop() {
+		if (mView != null)
+			mView.scrollTo(0, 0);
+	}
+
+	private Handler mHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			if (mView != null) {
+				TextView tv = (TextView)mView.findViewById(R.id.tvContent);
+				tv.setText((CharSequence)msg.obj);
+			}
+		}
+	};
 }
 

@@ -1,8 +1,11 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<info.guardianproject.securereaderinterface.widgets.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/transparent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:descendantFocusability="beforeDescendants"
     >
 
     <info.guardianproject.securereaderinterface.widgets.AnimatedRelativeLayout
@@ -138,7 +141,10 @@
                 android:layout_marginLeft="@dimen/card_left_margin"
                 android:layout_marginRight="@dimen/card_right_margin"
                 android:layout_marginTop="@dimen/content_top_margin"
-                android:text="TextView" />
+                android:text="TextView"
+                app:font="NotoNaskhArabic-Regular"
+                app:no_transform="true"
+                />
 
             <info.guardianproject.securereaderinterface.widgets.CustomFontTextView
                 android:id="@+id/tvReadMore"
@@ -159,4 +165,4 @@
 
     </info.guardianproject.securereaderinterface.widgets.AnimatedRelativeLayout>
 
-</ScrollView>
+</info.guardianproject.securereaderinterface.widgets.NestedScrollView>

@@ -6,6 +6,7 @@ import info.guardianproject.securereader.SyncService;
 import info.guardianproject.securereaderinterface.models.FeedFilterType;
 import info.guardianproject.securereaderinterface.ui.UICallbackListener;
 import info.guardianproject.securereaderinterface.ui.UICallbacks;
+import info.guardianproject.securereaderinterface.widgets.AnimatedRelativeLayout;
 import info.guardianproject.securereaderinterface.widgets.CustomFontButton;
 import info.guardianproject.securereaderinterface.widgets.CustomFontEditText;
 import info.guardianproject.securereaderinterface.widgets.CustomFontRadioButton;
@@ -49,7 +50,9 @@ import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -129,6 +132,7 @@ public class App extends MultiDexApplication implements OnSharedPreferenceChange
 
 		// Currently hardcode Farsi
 		m_settings.setUiLanguage(Settings.UiLanguage.Farsi);
+		m_settings.setReaderSwipeDirection(Settings.ReaderSwipeDirection.Rtl);
 
 		applyUiLanguage(false);
 		super.onCreate();
@@ -342,11 +346,32 @@ public class App extends MultiDexApplication implements OnSharedPreferenceChange
 			else
 				returnView = new MirroringImageView(context, attrs);
 		}*/
+
 		// API 17 still has some trouble with handling RTL layouts automatically.
-		else if (name.equals("RelativeLayout") && Build.VERSION.SDK_INT == 17 && getInstance().isRTL()) {
-			if (returnView == null)
-				returnView = new RelativeLayout(context, attrs);
+		else if (name.equals("FrameLayout") && Build.VERSION.SDK_INT == 17 && getInstance().isRTL()) {
+			if (returnView == null) {
+				returnView = new FrameLayout(context, attrs);
+				returnView.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+				returnView.setTextDirection(View.TEXT_DIRECTION_RTL);
+			}
+		}
+		else if (name.equals("LinearLayout") && Build.VERSION.SDK_INT == 17 && getInstance().isRTL()) {
+			if (returnView == null) {
+				returnView = new LinearLayout(context, attrs);
+				returnView.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+				returnView.setTextDirection(View.TEXT_DIRECTION_RTL);
+			}
+		}
+		else if ((name.equals("RelativeLayout") || name.endsWith("AnimatedRelativeLayout")) && Build.VERSION.SDK_INT == 17 && getInstance().isRTL()) {
+			if (returnView == null) {
+				if (name.equals("RelativeLayout"))
+					returnView = new RelativeLayout(context, attrs);
+				else
+					returnView = new AnimatedRelativeLayout(context, attrs);
+			}
 			RelativeLayout relativeLayout = (RelativeLayout) returnView;
+			relativeLayout.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+			returnView.setTextDirection(View.TEXT_DIRECTION_RTL);
 			relativeLayout.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
 				@Override
 				public void onChildViewAdded(View parent, View child) {

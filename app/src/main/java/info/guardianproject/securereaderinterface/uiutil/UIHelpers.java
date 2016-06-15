@@ -260,26 +260,29 @@ public class UIHelpers
 		}
 		return gMaxGLSize;
 	}
-	
-	public static Bitmap scaleToMaxGLSize(Context context, File mediaFile, int width, int height)
+
+	public static Bitmap scaleToMaxGLSize(Context context, File mediaFile, int mediaFileWidth, int mediaFileHeight, int viewWidth, int viewHeight)
 	{
 		try {
+			if (mediaFileWidth == 0 || mediaFileHeight == 0) {
+				// Try to get the size from the file
+				BitmapFactory.Options o = new BitmapFactory.Options();
+				o.inJustDecodeBounds = true;
 
-			// Decode image size
-			BitmapFactory.Options o = new BitmapFactory.Options();
-			o.inJustDecodeBounds = true;
-		
-			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(mediaFile));
-			BitmapFactory.decodeStream(bis, null, o);
-			bis.close();
-			
+				BufferedInputStream bis = new BufferedInputStream(new FileInputStream(mediaFile));
+				BitmapFactory.decodeStream(bis, null, o);
+				bis.close();
+				mediaFileWidth = o.outWidth;
+				mediaFileHeight = o.outHeight;
+			}
+
 			Point maxSize = getMaxGLSize(context);
 
 			int scale = 1;
-			if (o.outWidth > maxSize.x || o.outHeight > maxSize.y)
+			if (mediaFileWidth > maxSize.x || mediaFileHeight > maxSize.y)
 			{
 				// Find the correct scale value. It should be the power of 2.
-				int width_tmp = o.outWidth, height_tmp = o.outHeight;
+				int width_tmp = mediaFileWidth, height_tmp = mediaFileHeight;
 				while (true)
 				{
 					if (width_tmp < maxSize.x && height_tmp < maxSize.y)
@@ -293,10 +296,10 @@ public class UIHelpers
 			}
 
 			int scaleIV = 1;
-			if (width > 0 && height > 0)
+			if (viewWidth > 0 && viewHeight > 0)
 			{
-				int heightRatio = (int) Math.ceil(o.outHeight / (float) height);
-				int widthRatio = (int) Math.ceil(o.outWidth / (float) width);
+				int heightRatio = (int) Math.ceil(mediaFileHeight / (float) viewHeight);
+				int widthRatio = (int) Math.ceil(mediaFileWidth / (float) viewWidth);
 				if (heightRatio > 1 && widthRatio > 1)
 				{
 					if (heightRatio > widthRatio)
@@ -314,16 +317,20 @@ public class UIHelpers
 			BitmapFactory.Options o2 = new BitmapFactory.Options();
 			o2.inSampleSize = Math.max(scale, scaleIV);
 			//return BitmapFactory.decodeFile(mediaFile.getAbsolutePath(), o2);
-			
-			BufferedInputStream bis2 = new BufferedInputStream(new FileInputStream(mediaFile));
+
+			//BufferedInputStream bis2 = new BufferedInputStream(new FileInputStream(mediaFile));
+			//Bitmap returnBitmap = BitmapFactory.decodeStream(bis2, null, o2);
+			//bis2.close();
+
+			FileInputStream bis2 = new FileInputStream(mediaFile);
 			Bitmap returnBitmap = BitmapFactory.decodeStream(bis2, null, o2);
 			bis2.close();
-			
+
 			return returnBitmap;
-			
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

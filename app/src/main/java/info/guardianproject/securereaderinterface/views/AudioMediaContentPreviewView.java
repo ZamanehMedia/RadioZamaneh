@@ -118,7 +118,7 @@ public class AudioMediaContentPreviewView extends FrameLayout implements MediaCo
 				{
 					int w = getWidth();
 					int h = getHeight();
-					Bitmap bmp = UIHelpers.scaleToMaxGLSize(getContext(), mThumbnailMediaFile, w, h);
+					Bitmap bmp = UIHelpers.scaleToMaxGLSize(getContext(), mThumbnailMediaFile, mThumbnailMediaContent.getWidth(), mThumbnailMediaContent.getHeight(), w, h);
 
 					Runnable doSetImageRunnable = new Runnable()
 					{

@@ -54,7 +54,7 @@ public class FullScreenStoryItemView extends FrameLayout
 	private CheckableImageView mBtnFavorite;
 	private ShareSpinnerAdapter mShareAdapter;
 	private TextSizeSpinnerAdapter mTextSizeAdapter;
-	private NestedViewPager mContentPager;
+	private ViewPager mContentPager;
 	private ContentPagerAdapter mContentPagerAdapter;
 
 	private StoryListAdapter mItemAdapter;
@@ -107,7 +107,7 @@ public class FullScreenStoryItemView extends FrameLayout
 		setBackgroundResource(R.drawable.background_detail);
 		//setBackgroundColor(Color.TRANSPARENT);
 
-		mContentPager = (NestedViewPager) findViewById(R.id.horizontalPagerContent);
+		mContentPager = (ViewPager) findViewById(R.id.horizontalPagerContent);
 		mContentPagerAdapter = new ContentPagerAdapter();
 		mContentPager.setAdapter(mContentPagerAdapter);
 		mContentPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -555,12 +555,16 @@ public class FullScreenStoryItemView extends FrameLayout
 			}
 			mViews.clear();
 			
-			if (mLeftView != null)
+			if (mLeftView != null) {
 				mViews.add(mLeftView);
+				mLeftView.scrollToTop();
+			}
 			if (mCurrentView != null)
 				mViews.add(mCurrentView);
-			if (mRightView != null)
+			if (mRightView != null) {
 				mViews.add(mRightView);
+				mRightView.scrollToTop();
+			}
 		}
 
 		@Override
