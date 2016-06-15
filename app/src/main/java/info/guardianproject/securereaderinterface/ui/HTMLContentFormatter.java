@@ -55,6 +55,8 @@ public class HTMLContentFormatter extends HTMLToPlainTextFormatter {
                 append("\n");
             else if (name.equals("a")) {
                 if (startOfLink != -1) {
+                    /*
+                    Uncomment this to get clickable links
                     HTMLLinkSpan span = new HTMLLinkSpan(node.absUrl("href"));
                     accum.setSpan(span, startOfLink, accum.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
                     String url = span.getURL();
@@ -62,7 +64,7 @@ public class HTMLContentFormatter extends HTMLToPlainTextFormatter {
                     append(url);
                     span = new HTMLLinkSpan(span.getURL());
                     accum.setSpan(span, accum.length() - url.length(), accum.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-                    append(">");
+                    append(">");*/
                     startOfLink = -1;
                 }
             }

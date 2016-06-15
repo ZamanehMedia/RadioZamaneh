@@ -55,7 +55,9 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 {
 	public static final String LOGTAG = "StoryItemView";
 	public static final boolean LOGGING = false;
-	
+
+	private static HTMLContentFormatter gFormatter;
+
 	private final Item mItem;
 	private MediaViewCollection mMediaViewCollection;
 	private SparseArray<Rect> mStoredPositions;
@@ -116,6 +118,12 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 		if (mMediaViewCollection != null && mMediaViewCollection.getCount() > 0)
 			return true;
 		return false;
+	}
+
+	private HTMLToPlainTextFormatter getContentFormatter() {
+		if (gFormatter == null)
+			gFormatter = new HTMLContentFormatter();
+		return gFormatter;
 	}
 
 	private AnimatedRelativeLayout getAnimatedRoot()
@@ -247,7 +255,7 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 
 				@Override
 				public void run() {
-					CharSequence cleanContent = mItem.getCleanMainContent();
+					CharSequence cleanContent = mItem.getFormattedMainContent(getContentFormatter());
 
 					// Trim white at beginning of text
 					if (!TextUtils.isEmpty(cleanContent)) {

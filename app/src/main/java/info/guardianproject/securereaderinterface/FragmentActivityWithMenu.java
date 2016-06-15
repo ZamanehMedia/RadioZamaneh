@@ -182,6 +182,9 @@ public class FragmentActivityWithMenu extends LockableActivity implements OnCall
                         }
                     }
                 };
+                if (mToolbar != null) {
+                    ViewCompat.setLayoutDirection(mToolbar, ViewCompat.LAYOUT_DIRECTION_RTL);
+                }
                 mDrawerLayout.setDrawerListener(mDrawerToggle);
                 mDrawerToggle.syncState();
             }

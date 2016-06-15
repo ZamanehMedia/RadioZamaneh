@@ -269,7 +269,7 @@ public class UIHelpers
 				BitmapFactory.Options o = new BitmapFactory.Options();
 				o.inJustDecodeBounds = true;
 
-				BufferedInputStream bis = new BufferedInputStream(new FileInputStream(mediaFile));
+				FileInputStream bis = new FileInputStream(mediaFile);
 				BitmapFactory.decodeStream(bis, null, o);
 				bis.close();
 				mediaFileWidth = o.outWidth;
