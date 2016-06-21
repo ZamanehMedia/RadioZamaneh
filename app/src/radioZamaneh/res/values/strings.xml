@@ -24,6 +24,7 @@
     <string name="radio_play">Play Radio</string>
     <string name="radio_loading">Loading...</string>
     <string name="radio_stop">Stop Radio</string>
+    <string name="radio_playing">Radio is playing</string>
     <string name="media_status_error">Error retrieving media</string>
     <string name="media_status_created">Requesting media</string>
     <string name="media_status_queued">Requesting media</string>

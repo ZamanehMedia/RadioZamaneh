@@ -30,6 +30,9 @@ import java.util.TimeZone;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.res.TypedArray;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -44,6 +47,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -96,7 +100,7 @@ public class App extends MultiDexApplication implements OnSharedPreferenceChange
 	// the following url is what is contained in the m3u link here:
 	// http://www.internet-radio.com/servers/tools/playlistgenerator/?u=http://uk1.internet-radio.com:8034/live.m3u&t=.m3u";
 	// we might need to download the m3u every time and use the contained url in case that changes
-	public static final String RZ_RADIO_URI = "http://uk1.internet-radio.com:8034/live";
+	public static final String RZ_RADIO_URI = "http://uk1.internet-radio.com:8034/stream";
 
 	private static App m_singleton;
 
@@ -113,12 +117,15 @@ public class App extends MultiDexApplication implements OnSharedPreferenceChange
 
 	private boolean mIsWiping = false;
 
+	public static final int RADIO_PLAYER_NOTIFICATION_ID = 1;
+
 	public static final int RADIO_PLAYER_IDLE = 0;
 	public static final int RADIO_PLAYER_LOADING = 1;
 	public static final int RADIO_PLAYER_PLAYING = 2;
 	public static final int RADIO_PLAYER_ERROR = 3;
 	private MediaPlayer mPlayer;
 	private int mRadioPlayerStatus = RADIO_PLAYER_IDLE;
+	private Notification mNotification;
 
 	@Override
 	public void onCreate()
@@ -695,5 +702,24 @@ public class App extends MultiDexApplication implements OnSharedPreferenceChange
 		Intent intent = new Intent(App.RADIOPLAYER_BROADCAST_ACTION);
 		intent.putExtra("status", mRadioPlayerStatus);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+		NotificationManager nm = (NotificationManager) getSystemService(App.NOTIFICATION_SERVICE);
+		if (mRadioPlayerStatus == RADIO_PLAYER_PLAYING) {
+			if (mNotification == null) {
+				Intent startIntent = new Intent(this, MainActivity.class);
+				startIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+				startIntent.putExtra("openMenu", true);
+				PendingIntent pi = PendingIntent.getActivity(this, 1, startIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+				mNotification = new NotificationCompat.Builder(this)
+						.setOngoing(true)
+						.setContentTitle(getString(R.string.app_name))
+						.setContentText(getString(R.string.radio_playing))
+						.setContentIntent(pi)
+						.setSmallIcon(R.drawable.ic_play)
+						.build();
+			}
+			nm.notify(RADIO_PLAYER_NOTIFICATION_ID, mNotification);
+		} else {
+			nm.cancel(RADIO_PLAYER_NOTIFICATION_ID);
+		}
 	}
 }

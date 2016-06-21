@@ -31,6 +31,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.PopupWindowCompat;
 import android.text.TextUtils;
@@ -98,6 +99,7 @@ public class MainActivity extends ItemExpandActivity
 
 	boolean mIsLoading;
 	private SyncMode mCurrentSyncMode;
+	private boolean openMenuOnResume;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -162,8 +164,13 @@ public class MainActivity extends ItemExpandActivity
 					UICallbacks.setFeedFilter(App.getInstance().getCurrentFeedFilterType(), App.getInstance().getCurrentFeedId(), MainActivity.this);
 					//getSupportActionBar().show();
 				}
+				if (openMenuOnResume) {
+					openMenuOnResume = false;
+					if (mDrawerLayout != null) {
+						mDrawerLayout.openDrawer(GravityCompat.START);
+					}
+				}
 			}
-
 		}
 
 		// Called with flags of which item to show?
@@ -268,6 +275,10 @@ public class MainActivity extends ItemExpandActivity
 	@Override
 	protected void onNewIntent(Intent intent)
 	{
+		if (intent.hasExtra("openMenu")) {
+			intent.removeExtra("openMenu");
+			openMenuOnResume = true;
+		}
 		super.onNewIntent(intent);
 		setIntent(intent);
 	}
