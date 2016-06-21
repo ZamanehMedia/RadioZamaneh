@@ -14,7 +14,8 @@
         android:layout_height="34dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:src="@drawable/ic_panic_cancel" />
+        android:src="@drawable/ic_panic_cancel"
+        android:layout_alignParentEnd="true" />
 
     <TextView
         android:id="@+id/btnSettings"
@@ -24,11 +25,13 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@id/btnCancel"
+        android:layout_toStartOf="@id/btnCancel"
         android:layout_weight="1"
         android:gravity="center_vertical"
         android:text="@string/panic_settings"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:layout_alignParentStart="true" />
 
     <RelativeLayout
         android:id="@+id/RelativeLayout1"
