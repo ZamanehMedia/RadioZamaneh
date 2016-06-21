@@ -120,6 +120,7 @@ public class FragmentActivityWithMenu extends LockableActivity implements OnCall
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        App.getInstance().setCurrentLanguageInConfig(this);
         super.onCreate(savedInstanceState);
         //this.getWindow().setBackgroundDrawable(null);
         LayoutInflater inflater = LayoutInflater.from(this);
