@@ -24,6 +24,7 @@
     <string name="radio_play">رادیو را پخش کن</string>
     <string name="radio_loading">در حال بارگذاری</string>
     <string name="radio_stop">پخش رادیو را متوقف کن</string>
+    <string name="radio_playing">رادیو روشن است</string>
     <string name="media_status_error">اشکال در درخواست رسانه</string>
     <string name="media_status_created">در خواست رسانه</string>
     <string name="media_status_queued">در خواست رسانه</string>
