@@ -295,9 +295,10 @@ public class App extends MultiDexApplication implements OnSharedPreferenceChange
 		{
 			Intent intent = new Intent(m_context, SplashActivity.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(intent);
+			//startActivity(intent);
 		}
 		mIsWiping = false;
+		System.exit(0);
 	}
 
 	public boolean isWiping()
