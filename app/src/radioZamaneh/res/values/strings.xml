@@ -35,4 +35,6 @@
     <string name="pulldown_to_sync_no_net">Connect to the Internet to sync your news</string>
     <string name="pulldown_to_sync">Pull down to sync your news</string>
     <string name="pulldown_to_sync_syncing">Syncing your news...</string>
+    <string name="help_rz_info_title"></string>
+    <string name="help_rz_info_content"></string>
 </resources>
