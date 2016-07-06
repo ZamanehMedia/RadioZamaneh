@@ -283,6 +283,7 @@ public class App extends MultiDexApplication implements OnSharedPreferenceChange
 	public void wipe(Context context, int wipeMethod)
 	{
 		mIsWiping = true;
+
 		socialReader.doWipe(wipeMethod);
 		m_settings.resetSettings();
 		mLastResumed = null;
@@ -298,7 +299,6 @@ public class App extends MultiDexApplication implements OnSharedPreferenceChange
 			//startActivity(intent);
 		}
 		mIsWiping = false;
-		System.exit(0);
 	}
 
 	public boolean isWiping()

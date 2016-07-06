@@ -205,6 +205,7 @@ public class PanicActivity extends Activity implements OnTouchListener
 
 			LocalBroadcastManager.getInstance(this).sendBroadcastSync(new Intent(App.EXIT_BROADCAST_ACTION));
 			finish();
+			System.exit(0);
 		}
 	}
 	
