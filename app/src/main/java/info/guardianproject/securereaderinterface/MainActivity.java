@@ -73,7 +73,7 @@ public class MainActivity extends ItemExpandActivity
 	public static final String LOGTAG = "MainActivity";
 	
 	// HockeyApp SDK
-	public static String APP_ID = "dc2380a1235d44fcbe82f437955f1e65";
+	//public static String APP_ID = "dc2380a1235d44fcbe82f437955f1e65";
 
 	private boolean mIsInitialized;
 	private long mShowItemId;
@@ -228,7 +228,7 @@ public class MainActivity extends ItemExpandActivity
 		super.onPause();
 	}
 
-	// HockeyApp SDK
+/*	// HockeyApp SDK
 	private void checkForCrashes() {
 		CrashManager.register(this, APP_ID);
 	}
@@ -237,7 +237,7 @@ public class MainActivity extends ItemExpandActivity
 	private void checkForUpdates() {
 		//Remove this for store builds!
 		UpdateManager.register(this, APP_ID);
-	}
+	}*/
 
 	@Override
 	protected void onAfterResumeAnimation()
