@@ -6,7 +6,8 @@
     android:paddingBottom="19dp"
     android:paddingLeft="26dp"
     android:paddingRight="26dp"
-    android:paddingTop="19dp" >
+    android:paddingTop="19dp"
+    android:filterTouchesWhenObscured="true">
 
     <ImageView
         android:id="@+id/btnCancel"
