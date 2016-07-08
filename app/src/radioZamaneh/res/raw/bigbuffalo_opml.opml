@@ -6,18 +6,18 @@
     <dateModified>2013-07-18T00:38:00+00:00</dateModified>
   </head>
   <body>
-      <outline category="en_US" text="All Categories" htmlUrl="http://radiozamaneh.com/feed" xmlUrl="http://radiozamaneh.com/feed" subscribe="true" />
-      <outline category="en_US" text="News" htmlUrl="http://www.radiozamaneh.com/category/news/feed" xmlUrl="http://www.radiozamaneh.com/category/news/feed" subscribe="true" />
-      <outline category="en_US" text="Politics" htmlUrl="http://www.radiozamaneh.com/category/politics/feed" xmlUrl="http://www.radiozamaneh.com/category/politics/feed" subscribe="true" />
-      <outline category="en_US" text="Economy" htmlUrl="http://www.radiozamaneh.com/category/economy/feed" xmlUrl="http://www.radiozamaneh.com/category/economy/feed" subscribe="true" />
-      <outline category="en_US" text="Culture" htmlUrl="http://www.radiozamaneh.com/category/culture/feed" xmlUrl="http://www.radiozamaneh.com/category/culture/feed" subscribe="true" />
-      <outline category="en_US" text="Society" htmlUrl="http://www.radiozamaneh.com/category/societyandlaw/feed" xmlUrl="http://www.radiozamaneh.com/category/societyandlaw/feed" subscribe="true" />
-      <outline category="en_US" text="Science and Environment" htmlUrl="http://www.radiozamaneh.com/category/science-environment/feed" xmlUrl="http://www.radiozamaneh.com/category/science-environment/feed" subscribe="true" />
-      <outline category="en_US" text="Idea" htmlUrl="http://www.radiozamaneh.com/category/idea/feed" xmlUrl="http://www.radiozamaneh.com/category/idea/feed" subscribe="true" />
-      <outline category="en_US" text="Life" htmlUrl="http://www.radiozamaneh.com/category/living/feed" xmlUrl="http://www.radiozamaneh.com/category/living/feed" subscribe="true" />
-      <outline category="en_US" text="Dossiers" htmlUrl="http://www.radiozamaneh.com/category/dossiers/feed" xmlUrl="http://www.radiozamaneh.com/category/dossiers/feed" subscribe="true" />
-      <outline category="en_US" text="Books" htmlUrl="http://www.radiozamaneh.com/category/rzbook/feed" xmlUrl="http://www.radiozamaneh.com/category/rzbook/feed" subscribe="true" />
-      <outline category="en_US" text="Audio feed" htmlUrl="http://feeds.soundcloud.com/users/soundcloud:users:12366080/sounds.rss" xmlUrl="http://feeds.soundcloud.com/users/soundcloud:users:12366080/sounds.rss" subscribe="true" />
-      <outline category="en_US" text="Video feed" htmlUrl="http://www.youtube.com/feeds/videos.xml?playlist_id=UU4IPXv7mHV08eSmqg8RmwVA" xmlUrl="http://www.youtube.com/feeds/videos.xml?playlist_id=UU4IPXv7mHV08eSmqg8RmwVA" subscribe="true" />
+      <outline category="en_US" text="All Categories" htmlUrl="https://radiozamaneh.com/feed" xmlUrl="https://radiozamaneh.com/feed" subscribe="true" />
+      <outline category="en_US" text="News" htmlUrl="https://www.radiozamaneh.com/category/news/feed" xmlUrl="https://www.radiozamaneh.com/category/news/feed" subscribe="true" />
+      <outline category="en_US" text="Politics" htmlUrl="https://www.radiozamaneh.com/category/politics/feed" xmlUrl="https://www.radiozamaneh.com/category/politics/feed" subscribe="true" />
+      <outline category="en_US" text="Economy" htmlUrl="https://www.radiozamaneh.com/category/economy/feed" xmlUrl="https://www.radiozamaneh.com/category/economy/feed" subscribe="true" />
+      <outline category="en_US" text="Culture" htmlUrl="https://www.radiozamaneh.com/category/culture/feed" xmlUrl="https://www.radiozamaneh.com/category/culture/feed" subscribe="true" />
+      <outline category="en_US" text="Society" htmlUrl="https://www.radiozamaneh.com/category/societyandlaw/feed" xmlUrl="https://www.radiozamaneh.com/category/societyandlaw/feed" subscribe="true" />
+      <outline category="en_US" text="Science and Environment" htmlUrl="https://www.radiozamaneh.com/category/science-environment/feed" xmlUrl="https://www.radiozamaneh.com/category/science-environment/feed" subscribe="true" />
+      <outline category="en_US" text="Idea" htmlUrl="https://www.radiozamaneh.com/category/idea/feed" xmlUrl="https://www.radiozamaneh.com/category/idea/feed" subscribe="true" />
+      <outline category="en_US" text="Life" htmlUrl="https://www.radiozamaneh.com/category/living/feed" xmlUrl="https://www.radiozamaneh.com/category/living/feed" subscribe="true" />
+      <outline category="en_US" text="Dossiers" htmlUrl="https://www.radiozamaneh.com/category/dossiers/feed" xmlUrl="https://www.radiozamaneh.com/category/dossiers/feed" subscribe="true" />
+      <outline category="en_US" text="Books" htmlUrl="https://www.radiozamaneh.com/category/rzbook/feed" xmlUrl="https://www.radiozamaneh.com/category/rzbook/feed" subscribe="true" />
+      <outline category="en_US" text="Audio feed" htmlUrl="https://feeds.soundcloud.com/users/soundcloud:users:12366080/sounds.rss" xmlUrl="https://feeds.soundcloud.com/users/soundcloud:users:12366080/sounds.rss" subscribe="true" />
+      <outline category="en_US" text="Video feed" htmlUrl="https://www.youtube.com/feeds/videos.xml?playlist_id=UU4IPXv7mHV08eSmqg8RmwVA" xmlUrl="https://www.youtube.com/feeds/videos.xml?playlist_id=UU4IPXv7mHV08eSmqg8RmwVA" subscribe="true" />
   </body>
 </opml> 
