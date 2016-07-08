@@ -18,6 +18,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.tinymission.rss.Item;
 import com.tinymission.rss.MediaContent;
@@ -29,6 +30,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+
 import info.guardianproject.securereader.SocialReader;
 import info.guardianproject.securereaderinterface.App;
 import info.guardianproject.securereaderinterface.R;
@@ -47,12 +50,15 @@ public class YoutubeMediaContentView extends WebView implements SeekBar.OnSeekBa
 
     private View mBtnPlay;
     private View mBtnPause;
+    private View mBtnLoading;
+    private TextView mMediaStatusView;
     private boolean mIsPlayerLoaded;
     private boolean mIsPlaying;
     private boolean mIsPaused;
 
     private View mMediaController;
     private SeekBar mSeekbar;
+    private boolean mHasSetDuration;
     private ProgressBar mLoadIndicator;
     private boolean mIsTrackingThumb;
 
@@ -122,6 +128,7 @@ public class YoutubeMediaContentView extends WebView implements SeekBar.OnSeekBa
 
     public void setMediaContent(MediaContent mediaContent) {
         mMediaContent = mediaContent;
+        mHasSetDuration = false;
 
         Item parentItem = App.getInstance().socialReader.getItemFromId(mediaContent.getItemDatabaseId());
         String videoId = "";
@@ -132,6 +139,15 @@ public class YoutubeMediaContentView extends WebView implements SeekBar.OnSeekBa
 
 
         videoId = parentItem.getGuid().substring(9); // Strip the "yt:video:" part to get video ID
+
+        // Validate YouTube video id. The format is not official, but currently "seems to be" 11 chars
+        // in the range A-Z, a-z, 0-9 and _ and -. This may change anytime in the future, since
+        // no guarantee is given on the format.
+        boolean isValid = Pattern.matches("^[a-zA-Z0-9_-]{11}$", videoId);
+        if (!isValid) {
+            setVisibility(View.GONE);
+            return;
+        }
 
         String playerPageSource = null;
         try {
@@ -241,11 +257,10 @@ public class YoutubeMediaContentView extends WebView implements SeekBar.OnSeekBa
     public void setStartAutomatically(boolean startAutomatically) {
     }
 
-
-    public void setPlayButton(View view) {
+    public void setMediaControls(View btnPlay, View btnPause, View btnLoading, TextView mediaStatusView) {
         if (mBtnPlay != null)
             mBtnPlay.setOnClickListener(null);
-        mBtnPlay = view;
+        mBtnPlay = btnPlay;
         if (mBtnPlay != null) {
             mBtnPlay.setOnClickListener(new OnClickListener() {
                 @Override
@@ -253,14 +268,11 @@ public class YoutubeMediaContentView extends WebView implements SeekBar.OnSeekBa
                     play();
                 }
             });
-            mBtnPlay.setVisibility((mIsPlaying || !mIsPlayerLoaded) ? View.GONE : View.VISIBLE);
         }
-    }
 
-    public void setPauseButton(View view) {
         if (mBtnPause != null)
             mBtnPause.setOnClickListener(null);
-        mBtnPause = view;
+        mBtnPause = btnPause;
         if (mBtnPause != null) {
             mBtnPause.setOnClickListener(new OnClickListener() {
                 @Override
@@ -268,8 +280,20 @@ public class YoutubeMediaContentView extends WebView implements SeekBar.OnSeekBa
                     pause();
                 }
             });
-            mBtnPause.setVisibility(mIsPlaying ? View.VISIBLE : View.GONE);
         }
+
+        mBtnLoading = btnLoading;
+        mMediaStatusView = mediaStatusView;
+        updateMediaControls();
+    }
+
+    public void updateMediaControls() {
+        if (mBtnPlay != null)
+            mBtnPlay.setVisibility((mIsPlaying || !mIsPlayerLoaded) ? View.GONE : View.VISIBLE);
+        if (mBtnPause != null)
+            mBtnPause.setVisibility((mIsPlaying && mIsPlayerLoaded) ? View.VISIBLE : View.GONE);
+        if (mBtnLoading != null)
+            mBtnLoading.setVisibility(mIsPlayerLoaded ? View.GONE : View.VISIBLE);
     }
 
     public void play() {
@@ -291,7 +315,9 @@ public class YoutubeMediaContentView extends WebView implements SeekBar.OnSeekBa
     public class WebAppInterface {
         Context mContext;
 
-        /** Instantiate the interface and set the context */
+        /**
+         * Instantiate the interface and set the context
+         */
         WebAppInterface(Context c) {
             mContext = c;
         }
@@ -308,10 +334,16 @@ public class YoutubeMediaContentView extends WebView implements SeekBar.OnSeekBa
             post(new Runnable() {
                 @Override
                 public void run() {
+                    if (LOGGING)
+                        Log.d(LOGTAG, "Show play!!!");
                     if (mBtnPlay != null)
                         mBtnPlay.setVisibility(View.VISIBLE);
                     if (mLoadIndicator != null)
                         mLoadIndicator.setVisibility(View.GONE);
+                    if (mBtnLoading != null)
+                        mBtnLoading.setVisibility(View.GONE);
+                    if (mMediaStatusView != null)
+                        mMediaStatusView.setText(getResources().getString(R.string.media_status_loaded));
                 }
             });
         }
@@ -422,6 +454,14 @@ public class YoutubeMediaContentView extends WebView implements SeekBar.OnSeekBa
             mSeekbar.setMax(max);
             mSeekbar.setProgress(progress);
             mSeekbar.setSecondaryProgress((int)(fractionLoaded * mSeekbar.getMax()));
+
+            if (!mHasSetDuration) {
+                mHasSetDuration = true;
+
+                //Set length!
+                if (mMediaStatusView != null)
+                    mMediaStatusView.setText(getResources().getString(R.string.media_status_minutes, (int) (max / 60)));
+            }
         }
     }
 

@@ -44,6 +44,7 @@
             isVideoLoaded = true;
             isLoadingVideo = false;
             Android.isCueing(false);
+            Android.setDuration(player.getDuration());
         }
         if (isVideoLoaded) {
             Android.onStateChange(event.data);

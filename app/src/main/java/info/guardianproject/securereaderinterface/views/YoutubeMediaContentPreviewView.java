@@ -18,6 +18,7 @@ import info.guardianproject.iocipher.File;
 import info.guardianproject.securereaderinterface.App;
 import info.guardianproject.securereaderinterface.ProxyMediaStreamServer;
 import info.guardianproject.securereaderinterface.R;
+import info.guardianproject.securereaderinterface.ui.MediaViewCollection;
 import info.guardianproject.securereaderinterface.uiutil.AnimationHelpers;
 import info.guardianproject.securereaderinterface.uiutil.UIHelpers;
 
@@ -39,6 +40,8 @@ public class YoutubeMediaContentPreviewView extends FrameLayout implements Media
 	private View mPlayPauseView;
 	private View mBtnPlay;
 	private View mBtnPause;
+	private View mBtnLoading;
+	private TextView mMediaStatusView;
 	private YoutubeMediaContentView mMediaPlayView;
 
 	public YoutubeMediaContentPreviewView(Context context, AttributeSet attrs, int defStyle)
@@ -200,8 +203,9 @@ public class YoutubeMediaContentPreviewView extends FrameLayout implements Media
 
 	private void updateControls() {
 		if (mPlayPauseView != null) {
-			mPlayPauseView.setVisibility((mMediaContent != null) ? View.VISIBLE : View.GONE);
+			mPlayPauseView.setVisibility(View.VISIBLE);
 			if (mMediaContent != null) {
+				mBtnLoading.setVisibility(View.GONE);
 				if (mMediaPlayView == null) {
 
 					final View viewController = LayoutInflater.from(getContext()).inflate(R.layout.audio_view_controller, this, false);
@@ -217,14 +221,13 @@ public class YoutubeMediaContentPreviewView extends FrameLayout implements Media
 					addView(viewController);
 
 					mMediaPlayView.setStartAutomatically(false);
-					if (mBtnPlay != null)
-						mMediaPlayView.setPlayButton(mBtnPlay);
-					if (mBtnPause != null)
-						mMediaPlayView.setPauseButton(mBtnPause);
+					mMediaPlayView.setMediaControls(mBtnPlay, mBtnPause, mBtnLoading, mMediaStatusView);
 					ProxyMediaStreamServer proxyMediaServer = App.getInstance().getProxyMediaStreamServer();
 					if (proxyMediaServer != null) {
 						mMediaPlayView.setMediaContent(mMediaContent);
 					}
+				} else {
+					mMediaPlayView.updateMediaControls();
 				}
 			}
 		}
@@ -235,14 +238,22 @@ public class YoutubeMediaContentPreviewView extends FrameLayout implements Media
 			mMediaPlayView.pause();
 	}
 
-	public void setPlayPauseView(View playPauseView, TextView mMediaStatus) {
+	public void setPlayPauseView(View playPauseView, TextView mediaStatusView) {
 		mPlayPauseView = playPauseView;
 		mBtnPlay = mPlayPauseView.findViewById(R.id.btnPlay);
 		mBtnPause = mPlayPauseView.findViewById(R.id.btnPause);
+		mBtnLoading = mPlayPauseView.findViewById(R.id.btnLoading);
+		mMediaStatusView = mediaStatusView;
 		if (mMediaPlayView != null) {
-			mMediaPlayView.setPlayButton(mBtnPlay);
-			mMediaPlayView.setPauseButton(mBtnPause);
+			mMediaPlayView.setMediaControls(mBtnPlay, mBtnPause, mBtnLoading, mMediaStatusView);
 		}
 		updateControls();
+	}
+
+	@Override
+	protected void onWindowVisibilityChanged(int visibility) {
+		super.onWindowVisibilityChanged(visibility);
+		if (visibility == View.VISIBLE)
+			updateControls();
 	}
 }

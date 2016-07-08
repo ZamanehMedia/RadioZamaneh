@@ -90,8 +90,8 @@ public class VideoMediaContentView extends FrameLayout implements OnErrorListene
 			});
 		}
 
-		setPlayButton(mControllerView.findViewById(R.id.btnPlay));
-		setPauseButton(mControllerView.findViewById(R.id.btnPause));
+		setMediaControls(mControllerView.findViewById(R.id.btnPlay),
+				mControllerView.findViewById(R.id.btnPause), null, null);
 
 		mSeekbar = (SeekBar) mControllerView.findViewById(R.id.seekbar);
 		if (mSeekbar != null) {
@@ -119,10 +119,10 @@ public class VideoMediaContentView extends FrameLayout implements OnErrorListene
 		this.mAlwaysShowController = alwaysShowController;
 	}
 
-	public void setPlayButton(View view) {
+	public void setMediaControls(View btnPlay, View btnPause, View btnLoading, TextView mediaStatusView) {
 		if (mBtnPlay != null)
 			mBtnPlay.setOnClickListener(null);
-		mBtnPlay = view;
+		mBtnPlay = btnPlay;
 		if (mBtnPlay != null) {
 			mBtnPlay.setOnClickListener(new OnClickListener() {
 				@Override
@@ -130,14 +130,11 @@ public class VideoMediaContentView extends FrameLayout implements OnErrorListene
 					play();
 				}
 			});
-			mBtnPlay.setVisibility(mVideoView.isPlaying() ? View.GONE : View.VISIBLE);
 		}
-	}
 
-	public void setPauseButton(View view) {
 		if (mBtnPause != null)
 			mBtnPause.setOnClickListener(null);
-		mBtnPause = view;
+		mBtnPause = btnPause;
 		if (mBtnPause != null) {
 			mBtnPause.setOnClickListener(new OnClickListener() {
 				@Override
@@ -145,27 +142,28 @@ public class VideoMediaContentView extends FrameLayout implements OnErrorListene
 					pause();
 				}
 			});
-			mBtnPause.setVisibility(mVideoView.isPlaying() ? View.VISIBLE : View.GONE);
 		}
+
+		mMediaStatusView = mediaStatusView;
+		updateMediaControls();
 	}
 
-	public void setStatusView(TextView mediaStatusView) {
-		mMediaStatusView = mediaStatusView;
+	public void updateMediaControls() {
+		if (mBtnPlay != null)
+			mBtnPlay.setVisibility(mVideoView.isPlaying() ? View.GONE : View.VISIBLE);
+		if (mBtnPause != null)
+			mBtnPause.setVisibility(mVideoView.isPlaying() ? View.VISIBLE : View.GONE);
 	}
 
 	public void play() {
 		mVideoView.start();
 		startProgressThread();
-		mBtnPlay.setVisibility(View.INVISIBLE);
-		if (mBtnPause != null)
-			mBtnPause.setVisibility(View.VISIBLE);
+		updateMediaControls();
 	}
 
 	public void pause() {
 		mVideoView.pause();
-		if (mBtnPlay != null)
-			mBtnPlay.setVisibility(View.VISIBLE);
-		mBtnPause.setVisibility(View.INVISIBLE);
+		updateMediaControls();
 	}
 
 	public void setContentUri(Uri uri)

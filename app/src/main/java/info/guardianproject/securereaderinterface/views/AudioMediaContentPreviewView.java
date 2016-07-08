@@ -238,16 +238,13 @@ public class AudioMediaContentPreviewView extends FrameLayout implements MediaCo
 
 					mMediaPlayView.setStartAutomatically(false);
 					mMediaPlayView.setAlwaysShowController(true);
-					if (mBtnPlay != null)
-						mMediaPlayView.setPlayButton(mBtnPlay);
-					if (mBtnPause != null)
-						mMediaPlayView.setPauseButton(mBtnPause);
-					if (mMediaStatusView != null)
-						mMediaPlayView.setStatusView(mMediaStatusView);
+					mMediaPlayView.setMediaControls(mBtnPlay, mBtnPause, mBtnLoading, mMediaStatusView);
 					ProxyMediaStreamServer proxyMediaServer = App.getInstance().getProxyMediaStreamServer();
 					if (proxyMediaServer != null) {
 						mMediaPlayView.setContentUri(Uri.parse(proxyMediaServer.getProxyUrlForMediaContent(mMediaContent)));
 					}
+				} else {
+					mMediaPlayView.updateMediaControls();
 				}
 			}
 		}
@@ -265,13 +262,19 @@ public class AudioMediaContentPreviewView extends FrameLayout implements MediaCo
 		mBtnLoading = mPlayPauseView.findViewById(R.id.btnLoading);
 		mMediaStatusView = mediaStatusView;
 		if (mMediaPlayView != null) {
-			mMediaPlayView.setPlayButton(mBtnPlay);
-			mMediaPlayView.setPauseButton(mBtnPause);
+			mMediaPlayView.setMediaControls(mBtnPlay, mBtnPause, mBtnLoading, mMediaStatusView);
 		}
 		updateControls();
 	}
 
 	public void setLoadInfo(MediaViewCollection.MediaContentLoadInfo loadInfo) {
 		mLoadInfo = loadInfo;
+	}
+
+	@Override
+	protected void onWindowVisibilityChanged(int visibility) {
+		super.onWindowVisibilityChanged(visibility);
+		if (visibility == View.VISIBLE)
+			updateControls();
 	}
 }
