@@ -17,6 +17,7 @@
         android:description="@string/app_description"
         android:theme="@style/AppTheme"
         android:allowBackup="false"
+        android:supportsRtl="true"
         >
 
 		<!--<activity android:name="net.hockeyapp.android.UpdateActivity" />-->
