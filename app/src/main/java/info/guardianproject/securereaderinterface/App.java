@@ -14,8 +14,7 @@ import info.guardianproject.securereaderinterface.widgets.CustomFontTextView;
 import info.guardianproject.securereader.SocialReader;
 import info.guardianproject.securereader.SocialReporter;
 
-import info.guardianproject.securereaderinterface.widgets.MirroringImageView;
-import info.guardianproject.zt.SplashActivity;
+import com.radiozamaneh.rz.SplashActivity;
 
 
 import java.io.ByteArrayInputStream;
@@ -33,7 +32,6 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.res.TypedArray;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -55,10 +53,8 @@ import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.tinymission.rss.Feed;
 

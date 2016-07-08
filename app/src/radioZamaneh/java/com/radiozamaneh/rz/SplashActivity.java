@@ -1,11 +1,9 @@
-package info.guardianproject.zt;
+package com.radiozamaneh.rz;
 
 import info.guardianproject.cacheword.CacheWordHandler;
 import info.guardianproject.cacheword.ICacheWordSubscriber;
 import info.guardianproject.securereaderinterface.App;
-import info.guardianproject.securereaderinterface.HelpActivity;
 import info.guardianproject.securereaderinterface.MainActivity;
-import info.guardianproject.securereaderinterface.PanicActivity;
 import info.guardianproject.securereaderinterface.R;
 import info.guardianproject.securereaderinterface.uiutil.AnimationHelpers;
 import info.guardianproject.securereaderinterface.uiutil.AnimationHelpers.FadeInFadeOutListener;

@@ -46,7 +46,15 @@ android {
             dependencies {
                 compile 'com.navercorp.pulltorefresh:library:3.2.0@aar'
             }
-        }    
+            android.sourceSets.main.java {
+                //exclude '**/AddFeed*.java'
+                //exclude '**/AddPostActivity.java'
+                //exclude '**/CreateAccountActivity.java'
+                //exclude '**/DownloadEpubReaderActivity.java'
+                //exclude '**/DownloadsActivity.java'
+                //exclude '**/installer/**'
+            }
+        }
 	}
 
     sourceSets {

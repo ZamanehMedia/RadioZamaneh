@@ -1,4 +1,4 @@
-package info.guardianproject.zt.views;
+package com.radiozamaneh.rz.views;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -7,19 +7,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Rect;
-import android.graphics.Region;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
-import android.view.View;
-import android.view.ViewOutlineProvider;
-import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import info.guardianproject.securereaderinterface.R;
-import info.guardianproject.securereaderinterface.uiutil.UIHelpers;
 
 /**
  * Created by N-Pex on 16-02-26.

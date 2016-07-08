@@ -43,7 +43,7 @@
        		layout="@layout/left_side_menu" />-->
 	</android.support.v4.widget.DrawerLayout>
 	
-	<info.guardianproject.zt.views.ToolbarReceiptShadowView
+	<com.radiozamaneh.rz.views.ToolbarReceiptShadowView
     	android:id="@+id/toolbar_shadow"
     	android:layout_width="match_parent"
     	android:layout_height="40dp"

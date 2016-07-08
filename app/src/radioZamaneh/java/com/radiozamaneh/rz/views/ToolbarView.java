@@ -1,24 +1,12 @@
-package info.guardianproject.zt.views;
+package com.radiozamaneh.rz.views;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.BitmapShader;
-import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.RectF;
-import android.graphics.Shader;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.Shape;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.View;
 
-import info.guardianproject.securereaderinterface.R;
 import info.guardianproject.securereaderinterface.uiutil.UIHelpers;
 
 /**

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<info.guardianproject.zt.views.ToolbarView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.radiozamaneh.rz.views.ToolbarView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/toolbar"
@@ -20,4 +20,4 @@
         android:singleLine="true"
         android:text="@string/story_comment_item_comment" />
 
-</info.guardianproject.zt.views.ToolbarView>
+</com.radiozamaneh.rz.views.ToolbarView>

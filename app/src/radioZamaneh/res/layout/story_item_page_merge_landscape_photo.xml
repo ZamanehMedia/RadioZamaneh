@@ -41,7 +41,7 @@
 
     </RelativeLayout>
 
-    <info.guardianproject.zt.views.RoundRelativeLayout
+    <com.radiozamaneh.rz.views.RoundRelativeLayout
         android:id="@+id/layout_media"
         android:layout_width="100dp"
         android:layout_height="100dp"
@@ -76,6 +76,6 @@
         	app:dot_rim_color_current="@color/button_primary" />
         
 
-	</info.guardianproject.zt.views.RoundRelativeLayout>
+	</com.radiozamaneh.rz.views.RoundRelativeLayout>
 
 </merge>
