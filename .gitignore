@@ -32,3 +32,5 @@ app/lastbuild.flavor
 app/src/preprocessed/
 
 build.xml
+
+*.xml~

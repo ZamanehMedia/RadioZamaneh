@@ -18,6 +18,10 @@ android {
         additionalParameters "--no-version-vectors"
     }
 
+    lintOptions {
+        abortOnError false
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -39,9 +43,9 @@ android {
             }
         }*/
         radioZamaneh {
-            applicationId = "com.radiozamaneh.rz"
-            versionName = "1.0.0"
-            versionCode = 29
+            applicationId = "com.radiozamaneh.rss"
+            versionName = "2.0.0"
+            versionCode = 5
             minSdkVersion 16
             dependencies {
                 compile 'com.navercorp.pulltorefresh:library:3.2.0@aar'
