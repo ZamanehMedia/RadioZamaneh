@@ -56,9 +56,6 @@ import android.widget.TextView.OnEditorActionListener;
 import com.tinymission.rss.Feed;
 import com.tinymission.rss.Item;
 
-import net.hockeyapp.android.CrashManager;
-import net.hockeyapp.android.UpdateManager;
-
 // HockeyApp SDK
 //import net.hockeyapp.android.CrashManager;
 //import net.hockeyapp.android.UpdateManager;
