@@ -1,5 +1,6 @@
 package info.guardianproject.securereaderinterface;
 		
+import info.guardianproject.iocipher.FileInputStream;
 import info.guardianproject.securereader.Settings;
 import info.guardianproject.securereader.SocialReader.SocialReaderLockListener;
 import info.guardianproject.securereader.SyncService;
@@ -18,6 +19,7 @@ import com.radiozamaneh.rz.SplashActivity;
 
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -56,6 +59,10 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import com.squareup.picasso.Downloader;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Request;
+import com.squareup.picasso.RequestHandler;
 import com.tinymission.rss.Feed;
 
 import javax.xml.transform.Result;
@@ -139,6 +146,25 @@ public class App extends MultiDexApplication implements OnSharedPreferenceChange
 
 		applyUiLanguage(false);
 		super.onCreate();
+
+		// Load images from secure storage
+		//
+		Picasso.setSingletonInstance(new Picasso.Builder(getContext())
+				.addRequestHandler(new RequestHandler() {
+					@Override
+					public boolean canHandleRequest(Request data) {
+						return true;
+					}
+
+					@Override
+					public Result load(Request request, int networkPolicy) throws IOException {
+						FileInputStream is = new FileInputStream(request.uri.toString());
+						return new Result(is, Picasso.LoadedFrom.NETWORK);
+					}
+				})
+				//.indicatorsEnabled(true)
+				.defaultBitmapConfig(Bitmap.Config.RGB_565)
+				.build());
 
 		SocialReader.USERAGENT = "RZ Android";
 		socialReader = SocialReader.getInstance(this.getApplicationContext());

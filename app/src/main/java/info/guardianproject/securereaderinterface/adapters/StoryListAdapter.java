@@ -258,7 +258,7 @@ public class StoryListAdapter extends BaseAdapter implements OnMediaLoadedListen
 	{
 		if (mDeferMediaLoading != deferMediaLoading)
 		{
-			mDeferMediaLoading = deferMediaLoading;
+			//mDeferMediaLoading = deferMediaLoading;
 		}
 	}
 	
