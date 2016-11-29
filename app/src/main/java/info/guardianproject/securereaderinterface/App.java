@@ -164,7 +164,7 @@ public class App extends MultiDexApplication implements OnSharedPreferenceChange
 				.defaultBitmapConfig(Bitmap.Config.RGB_565)
 				.build());
 
-		SocialReader.USERAGENT = "RZ Android";
+		//SocialReader.USERAGENT = "RZ Android";
 		socialReader = SocialReader.getInstance(this.getApplicationContext());
 		socialReader.setLockListener(this);
 		socialReader.setFeedPreprocessor(this);
