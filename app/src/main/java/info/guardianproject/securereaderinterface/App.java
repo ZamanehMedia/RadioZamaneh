@@ -140,6 +140,7 @@ public class App extends MultiDexApplication implements OnSharedPreferenceChange
 		applyUiLanguage(false);
 		super.onCreate();
 
+		SocialReader.USERAGENT = "RZ Android";
 		socialReader = SocialReader.getInstance(this.getApplicationContext());
 		socialReader.setLockListener(this);
 		socialReader.setFeedPreprocessor(this);
