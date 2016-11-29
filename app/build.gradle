@@ -44,8 +44,8 @@ android {
         }*/
         radioZamaneh {
             applicationId = "com.radiozamaneh.rss"
-            versionName = "2.0.0"
-            versionCode = 5
+            versionName = "2.1.0"
+            versionCode = 6
             minSdkVersion 16
             dependencies {
                 compile 'com.navercorp.pulltorefresh:library:3.2.0@aar'
