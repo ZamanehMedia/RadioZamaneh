@@ -32,10 +32,14 @@ public class HTMLContentFormatter extends HTMLToPlainTextFormatter {
     private class FormattingVisitor implements NodeVisitor {
         private SpannableStringBuilder accum = new SpannableStringBuilder(); // holds the accumulated text
         private int startOfLink = -1;
+        private String ignoreUntilElement;
+        private int ignoreUntilDepth;
 
         // hit when the node is first seen
         public void head(Node node, int depth) {
             String name = node.nodeName();
+            if (ignoreUntilElement != null)
+                return;
             if (node instanceof TextNode)
                 append(((TextNode) node).text()); // TextNodes carry all user-readable text in the DOM.
             else if (name.equals("li"))
@@ -46,25 +50,33 @@ public class HTMLContentFormatter extends HTMLToPlainTextFormatter {
                 append("\n");
             else if (name.equals("a"))
                 startOfLink = accum.length();
+            else if (name.equals("div") && node instanceof Element) {
+                Element element = (Element) node;
+                if (element.hasAttr("class") && element.attr("class").contains("wp-caption")) {
+                    ignoreUntilElement = "div";
+                    ignoreUntilDepth = depth;
+                }
+            }
         }
 
         // hit when all of the node's children (if any) have been visited
         public void tail(Node node, int depth) {
             String name = node.nodeName();
-            if (StringUtil.in(name, "br", "dd", "dt", "p", "h1", "h2", "h3", "h4", "h5"))
+            if (ignoreUntilElement != null && name != null && name.contentEquals(ignoreUntilElement) && depth == ignoreUntilDepth) {
+                  ignoreUntilElement = null;
+            } else if (StringUtil.in(name, "br", "dd", "dt", "p", "h1", "h2", "h3", "h4", "h5"))
                 append("\n");
             else if (name.equals("a")) {
                 if (startOfLink != -1) {
-                    /*
-                    Uncomment this to get clickable links
+                    //Uncomment this to get clickable links
                     HTMLLinkSpan span = new HTMLLinkSpan(node.absUrl("href"));
                     accum.setSpan(span, startOfLink, accum.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-                    String url = span.getURL();
-                    append(" <");
-                    append(url);
-                    span = new HTMLLinkSpan(span.getURL());
-                    accum.setSpan(span, accum.length() - url.length(), accum.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-                    append(">");*/
+                    //String url = span.getURL();
+                    //append(" <");
+                    //append(url);
+                    //span = new HTMLLinkSpan(span.getURL());
+                    //accum.setSpan(span, accum.length() - url.length(), accum.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                    //append(">");
                     startOfLink = -1;
                 }
             }
@@ -80,8 +92,11 @@ public class HTMLContentFormatter extends HTMLToPlainTextFormatter {
         }
     }
 
-    public class HTMLLinkSpan extends ClickableSpan {
-        private View.OnClickListener listener;
+    public static class HTMLLinkSpan extends ClickableSpan {
+        public interface LinkListener {
+            void onLinkClicked(String url);
+        }
+        private LinkListener listener;
         private String url;
         public HTMLLinkSpan(String url) {
             this.url = url;
@@ -90,10 +105,10 @@ public class HTMLContentFormatter extends HTMLToPlainTextFormatter {
         @Override
         public void onClick(View widget) {
             if (listener != null)
-                listener.onClick(widget);
+                listener.onLinkClicked(this.url);
         }
 
-        public void setListener(View.OnClickListener listener) {
+        public void setListener(LinkListener listener) {
             this.listener = listener;
         }
 

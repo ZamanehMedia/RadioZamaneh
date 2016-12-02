@@ -453,7 +453,7 @@ public class FullScreenStoryItemView extends FrameLayout
 			super.setPrimaryItem(container, position, object);
 			if (newIndex != mCurrentIndex)
 			{
-				mCurrentIndex = newIndex;
+				setCurrentStoryIndex(newIndex);
 				notifyDataSetChanged();
 			}
 		}

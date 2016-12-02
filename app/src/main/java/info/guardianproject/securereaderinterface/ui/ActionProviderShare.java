@@ -8,23 +8,28 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.view.ActionProvider;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 
 import com.tinymission.rss.Feed;
+import com.tinymission.rss.Item;
 
 public class ActionProviderShare extends ActionProvider
 {
 	private final Context mContext;
 	private Spinner mSpinner;
 	private ShareSpinnerAdapter mAdapter;
+	private boolean mIsForFeedShare;
 	private Feed mFeed;
+	private Item mItem;
 
-	public ActionProviderShare(Context context)
+	public ActionProviderShare(Context context, boolean isForFeedShare)
 	{
 		super(context);
 		mContext = context;
+		mIsForFeedShare = isForFeedShare;
 	}
 
 	@Override
@@ -68,13 +73,19 @@ public class ActionProviderShare extends ActionProvider
 		{
 			if (mAdapter == null)
 			{
-				mAdapter = new ShareSpinnerAdapter(mSpinner, mContext, R.string.feed_share_popup_title, R.layout.actionbar_spinner_share_item);
+				mAdapter = new ShareSpinnerAdapter(mSpinner, mContext, mIsForFeedShare ? R.string.feed_share_popup_title : R.string.story_item_share_popup_title, R.layout.actionbar_spinner_share_item);
 				mSpinner.setAdapter(mAdapter);
 			}
 			mAdapter.clear();
-			Intent shareIntent = App.getInstance().socialReader.getShareIntent(mFeed);
-			//mAdapter.addSecureBTShareResolver(shareIntent);
-			mAdapter.addIntentResolvers(shareIntent);
+			if (mIsForFeedShare && mFeed != null) {
+				Intent shareIntent = App.getInstance().socialReader.getShareIntent(mFeed);
+				//mAdapter.addSecureBTShareResolver(shareIntent);
+				mAdapter.addIntentResolvers(shareIntent);
+			} else if (!mIsForFeedShare && mItem != null) {
+				Intent shareIntent = App.getInstance().socialReader.getShareIntent(mItem);
+				//mAdapter.addSecureBTShareResolver(shareIntent);
+				mAdapter.addIntentResolvers(shareIntent);
+			}
 			mAdapter.notifyDataSetChanged();
 		}
 	}
@@ -82,6 +93,11 @@ public class ActionProviderShare extends ActionProvider
 	public void setFeed(Feed feed) 
 	{
 		mFeed = feed;
+		updateOrCreateAdapter();
+	}
+
+	public void setItem(Item item) {
+		mItem = item;
 		updateOrCreateAdapter();
 	}
 }

@@ -3,6 +3,7 @@ package info.guardianproject.securereaderinterface;
 
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.text.TextUtils;
 import android.util.Log;
@@ -21,6 +22,7 @@ import android.widget.RelativeLayout;
 
 import info.guardianproject.securereader.SocialReader;
 import info.guardianproject.securereaderinterface.adapters.StoryListAdapter;
+import info.guardianproject.securereaderinterface.ui.ActionProviderShare;
 import info.guardianproject.securereaderinterface.ui.UICallbacks;
 import info.guardianproject.securereaderinterface.uiutil.AnimationHelpers;
 import info.guardianproject.securereaderinterface.uiutil.UIHelpers;
@@ -43,6 +45,8 @@ public class ItemExpandActivity extends FragmentActivityWithMenu implements Stor
 	private int mFullOpeningOffset;
 	private boolean mInFullScreenMode;
 	private MenuItem mMenuItemReadMore;
+	private MenuItem mMenuItemShare;
+	private ActionProviderShare mShareActionProvider;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -293,6 +297,8 @@ public class ItemExpandActivity extends FragmentActivityWithMenu implements Stor
 
 	protected void configureActionBarForFullscreen(boolean isFullscreen)
 	{
+		if (mMenuItemShare != null)
+			mMenuItemShare.setVisible(isFullscreen);
 		setUsePullDownActionBar(isFullscreen);
 	}
 
@@ -316,6 +322,14 @@ public class ItemExpandActivity extends FragmentActivityWithMenu implements Stor
 	{
 		boolean ret = super.onCreateOptionsMenu(menu);
 		mMenuItemReadMore = menu.findItem(R.id.menu_read_more);
+		mMenuItemShare = menu.findItem(R.id.menu_share);
+		if (mMenuItemShare != null)
+		{
+			mShareActionProvider = new ActionProviderShare(getSupportActionBar().getThemedContext(), false);
+			if (mFullView != null)
+				mShareActionProvider.setItem(mFullView.getCurrentStory());
+			MenuItemCompat.setActionProvider(mMenuItemShare, mShareActionProvider);
+		}
 		return ret;
 	}
 
@@ -397,6 +411,9 @@ public class ItemExpandActivity extends FragmentActivityWithMenu implements Stor
 			boolean isReadMoreEnabled = !TextUtils.isEmpty(item.getLink()) && App.getInstance().socialReader.isOnline() == SocialReader.ONLINE;
 			mMenuItemReadMore.setEnabled(isReadMoreEnabled);
 		}
+		if (mShareActionProvider != null) {
+			mShareActionProvider.setItem(item);
+		}
 	}
 
 	private void onReadMoreClicked() {
@@ -407,4 +424,13 @@ public class ItemExpandActivity extends FragmentActivityWithMenu implements Stor
 			UICallbacks.handleCommand(this, R.integer.command_read_more, params);
 		}
 	}
+
+/*	@Override
+	public void hideActionBar() {
+		if (mShareActionProvider != null && mShareActionProvider.isOpen()) {
+			showActionBar(); // Keep on showing
+		} else {
+			super.hideActionBar();
+		}
+	}*/
 }

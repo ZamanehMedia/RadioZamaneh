@@ -267,6 +267,17 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 							cleanContent = cleanContent.subSequence(i, cleanContent.length());
 						}
 					}
+
+					// Linkify the links!
+					if (cleanContent instanceof Spannable) {
+						Spannable s = (Spannable) cleanContent;
+						Object[] spans = s.getSpans(0, cleanContent.length(), HTMLContentFormatter.HTMLLinkSpan.class);
+						for (Object span : spans) {
+							HTMLContentFormatter.HTMLLinkSpan link = (HTMLContentFormatter.HTMLLinkSpan)span;
+							link.setListener(mLinkClickListener);
+						}
+					}
+
 					mHandler.sendMessage(mHandler.obtainMessage(0, cleanContent));
 				}
 			}.init(tv));
@@ -525,6 +536,23 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 			if (mView != null) {
 				TextView tv = (TextView)mView.findViewById(R.id.tvContent);
 				tv.setText((CharSequence)msg.obj);
+			}
+		}
+	};
+
+	private HTMLContentFormatter.HTMLLinkSpan.LinkListener mLinkClickListener = new HTMLContentFormatter.HTMLLinkSpan.LinkListener() {
+		@Override
+		public void onLinkClicked(String url) {
+			if (mView != null) {
+				// Use tor or not?
+				if (App.getSettings().requireProxy()) {
+					ReadMoreClickListener readMore = new ReadMoreClickListener(url);
+					readMore.onClick(mView);
+				} else {
+					// Open
+					Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+					mView.getContext().startActivity(browserIntent);
+				}
 			}
 		}
 	};
