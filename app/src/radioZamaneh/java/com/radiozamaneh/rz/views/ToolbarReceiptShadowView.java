@@ -23,6 +23,9 @@ import info.guardianproject.securereaderinterface.uiutil.UIHelpers;
  * A specialized view for creating the toolbar shadow
  */
 public class ToolbarReceiptShadowView extends View {
+
+    private ReceiptDrawable mReceiptDrawable;
+
     public ToolbarReceiptShadowView(Context context) {
         super(context);
         init(context);
@@ -46,11 +49,15 @@ public class ToolbarReceiptShadowView extends View {
 
     private void init(Context context) {
         setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-        setBackground(new ReceiptDrawable(context, getWidth(), getHeight(), UIHelpers.dpToPx(5, context)));
+        mReceiptDrawable = new ReceiptDrawable(context, getWidth(), getHeight(), UIHelpers.dpToPx(5, context));
+        setBackground(mReceiptDrawable);
         addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                setBackground(new ReceiptDrawable(v.getContext(), right - left, bottom - top, UIHelpers.dpToPx(5, v.getContext())));
+                if ((right - left) != (oldRight - oldLeft) || (bottom - top) != (oldBottom - oldTop)) {
+                    mReceiptDrawable = new ReceiptDrawable(v.getContext(), right - left, bottom - top, UIHelpers.dpToPx(5, v.getContext()));
+                    setBackground(mReceiptDrawable);
+                }
             }
         });
     }
