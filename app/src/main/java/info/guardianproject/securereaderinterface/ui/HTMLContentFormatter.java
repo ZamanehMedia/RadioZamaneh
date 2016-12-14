@@ -40,8 +40,14 @@ public class HTMLContentFormatter extends HTMLToPlainTextFormatter {
             String name = node.nodeName();
             if (ignoreUntilElement != null)
                 return;
-            if (node instanceof TextNode)
-                append(((TextNode) node).text()); // TextNodes carry all user-readable text in the DOM.
+            if (node instanceof TextNode) {
+                String text = ((TextNode) node).text();
+                // Replace LINE SEPARATOR char
+                text = text.replace("\u2028", "\r\n");
+                // Replace PARAGRAPH SEPARATOR char
+                text = text.replace("\u2029", "\r\n\r\n");
+                append(text); // TextNodes carry all user-readable text in the DOM.
+            }
             else if (name.equals("li"))
                 append("\n * ");
             else if (name.equals("dt"))
