@@ -1,0 +1,43 @@
+{
+  "project_info": {
+    "project_number": "568533657104",
+    "project_id": "firebase-radio-zamaneh"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:568533657104:android:549df43fb45821f3",
+        "android_client_info": {
+          "package_name": "com.radiozamaneh.rss"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "568533657104-ffupv645apb3aeartnorc1532qs0np0r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9jT7zY_9EC6ZkWbWZq9I6Y9G-CFAdxeg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-86740074-1"
+          }
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
