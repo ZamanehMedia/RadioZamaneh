@@ -260,7 +260,9 @@ public class StoryItemView implements OnUpdateListener, OnMediaLoadedListener
 					// Trim white at beginning of text
 					if (!TextUtils.isEmpty(cleanContent)) {
 						int i = 0;
-						while (i < cleanContent.length() && cleanContent.charAt(i) <= 32) {
+						while (i < cleanContent.length() &&
+								(Character.isWhitespace(cleanContent.charAt(i)) ||
+										Character.isSpaceChar(cleanContent.charAt(i)))) {
 							i++;
 						}
 						if (i != 0) {
